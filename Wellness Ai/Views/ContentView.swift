@@ -7,23 +7,23 @@ struct ContentView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
-                HomeView()
-                    .tag(0)
+            // Ana içerik alanı
+            VStack {
+                // Seçilen tabın içeriği
+                if selectedTab == 0 {
+                    HomeView()
+                } else if selectedTab == 1 {
+                    MeditationView()
+                } else if selectedTab == 2 {
+                    ChatView()
+                } else if selectedTab == 3 {
+                    InspirationView()
+                } else {
+                    ProfileView(showSubscribeSheet: $showSubscribeSheet)
+                }
                 
-                MeditationView()
-                    .tag(1)
-                
-                ChatView()
-                    .tag(2)
-                
-                TipsView()
-                    .tag(3)
-                
-                ProfileView(showSubscribeSheet: $showSubscribeSheet)
-                    .tag(4)
+                Spacer()
             }
-            .edgesIgnoringSafeArea(.bottom)
             
             // Özel tab bar
             CustomTabBar(selectedTab: $selectedTab)
@@ -41,7 +41,7 @@ struct CustomTabBar: View {
         TabItem(icon: "house.fill", name: "Ana Sayfa"),
         TabItem(icon: "lungs.fill", name: "Meditasyon"),
         TabItem(icon: "message.fill", name: "Sohbet"),
-        TabItem(icon: "list.bullet.clipboard.fill", name: "İpuçları"),
+        TabItem(icon: "lightbulb.fill", name: "İlham"),
         TabItem(icon: "person.fill", name: "Profil")
     ]
     
@@ -58,17 +58,17 @@ struct CustomTabBar: View {
                     VStack(spacing: 4) {
                         ZStack {
                             Circle()
-                                .fill(selectedTab == index ? Color.accentColor.opacity(0.2) : Color.clear)
+                                .fill(selectedTab == index ? Color.blue.opacity(0.2) : Color.clear)
                                 .frame(width: 50, height: 50)
                             
                             Image(systemName: tabItems[index].icon)
                                 .font(.system(size: 22))
-                                .foregroundColor(selectedTab == index ? .accentColor : .gray)
+                                .foregroundColor(selectedTab == index ? .blue : .gray)
                         }
                         
                         Text(tabItems[index].name)
                             .font(.system(size: 10))
-                            .foregroundColor(selectedTab == index ? .accentColor : .gray)
+                            .foregroundColor(selectedTab == index ? .blue : .gray)
                     }
                 }
                 
@@ -78,7 +78,7 @@ struct CustomTabBar: View {
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color("TabBarBackground"))
+                .fill(Color.white)
                 .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: -5)
         )
         .padding(.horizontal)

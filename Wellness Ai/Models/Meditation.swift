@@ -1,5 +1,5 @@
-
 import Foundation
+import SwiftUI
 
 struct Meditation: Identifiable, Codable {
     let id: UUID

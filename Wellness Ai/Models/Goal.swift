@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI // Bu satırı ekleyin
 
 struct Goal: Identifiable, Codable {
     let id: UUID

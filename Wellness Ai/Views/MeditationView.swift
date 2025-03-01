@@ -1,123 +1,5 @@
 import SwiftUI
-
-struct MeditationView: View {
-    @State private var selectedCategory: MeditationType = .focus
-    @State private var searchText = ""
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Üst başlık
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Meditasyon")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                
-                Text("İç huzuru keşfet")
-                    .font(.system(size: 16))
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
-            
-            // Kategori seçim alanı
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 15) {
-                    ForEach(MeditationType.allCases, id: \.self) { type in
-                        Button(action: {
-                            withAnimation {
-                                selectedCategory = type
-                            }
-                        }) {
-                            VStack {
-                                Image(systemName: type.icon)
-                                    .font(.system(size: 24))
-                                    .foregroundColor(selectedCategory == type ? .white : .primary)
-                                    .frame(width: 60, height: 60)
-                                    .background(
-                                        Circle()
-                                            .fill(selectedCategory == type ? type.color : Color("InputBackground"))
-                                    )
-                                
-                                Text(type.rawValue)
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                                    .foregroundColor(selectedCategory == type ? type.color : .primary)
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
-            .padding(.bottom, 10)
-            
-            // Önerilen meditasyonlar
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("Önerilen Meditasyonlar")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .padding(.horizontal)
-                        .padding(.top, 10)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 15) {
-                            ForEach(meditationsForType(selectedCategory).prefix(3)) { meditation in
-                                MeditationCard(meditation: meditation)
-                                    .frame(width: 280, height: 200)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    Text("Tüm Meditasyonlar")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .padding(.horizontal)
-                        .padding(.top, 10)
-                    
-                    ForEach(meditationsForType(selectedCategory)) { meditation in
-                        MeditationListItem(meditation: meditation)
-                            .padding(.horizontal)
-                    }
-                    
-                    Spacer()
-                        .frame(height: 100)
-                }
-            }
-            .background(Color("BackgroundColor"))
-        }
-        .background(Color("BackgroundColor").ignoresSafeArea())
-        .navigationTitle("Meditasyon")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-    
-    func meditationsForType(_ type: MeditationType) -> [Meditation] {
-        return sampleMeditations.filter { $0.type == type }
-    }
-}
-
-// Meditation type enum
-enum MeditationType: String, CaseIterable {
-    case focus = "Odaklanma"
-    case sleep = "Uyku"
-    case anxiety = "Kaygı"
-    case calm = "Sakinlik"
-    
-    var icon: String {
-        switch self {
-        case .focus: return "brain"
-        case .sleep: return "moon.stars.fill"
-        case .anxiety: return "wind"
-        case .calm: return "leaf.fill"
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .focus: return .blue
-        case .sleep: return .purple
-        case .anxiety: return .orange
-        case .calm: return .green
-        }
-    }
-}
-
+import AVFoundation
 
 // Örnek meditasyonlar
 let sampleMeditations = [
@@ -138,7 +20,125 @@ let sampleMeditations = [
     Meditation(title: "Günü Tamamlama", description: "Gün sonunda rahatlama ve şükran meditasyonu", duration: 10, type: .calm, imageName: "sunset.fill")
 ]
 
-// Meditation Card View
+struct MeditationView: View {
+    @EnvironmentObject var viewModel: WellnessViewModel
+    @State private var selectedCategory: MeditationType = .focus
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Başlık kısmı
+            headerView
+            
+            // Kategori seçici
+            CategorySelectorView(selectedCategory: $selectedCategory)
+            
+            // Meditasyon listesi
+            ScrollView {
+                VStack(alignment: .leading, spacing: 25) {
+                    // Önerilen meditasyonlar
+                    featuredMeditationsSection
+                    
+                    // Tüm meditasyonlar
+                    allMeditationsSection
+                    
+                    Spacer()
+                        .frame(height: 100)
+                }
+            }
+            .background(Color(.systemGray6))
+        }
+        .background(Color(.systemGray6).ignoresSafeArea())
+        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarHidden(true)
+    }
+    
+    // MARK: - UI Bileşenleri
+    
+    private var headerView: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("Meditasyon")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+            
+            Text("İç huzuru keşfet")
+                .font(.system(size: 16))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color.white)
+    }
+    
+    private var featuredMeditationsSection: some View {
+        VStack(alignment: .leading) {
+            Text("Önerilen Meditasyonlar")
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .padding(.horizontal)
+                .padding(.top, 20)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 15) {
+                    ForEach(filteredMeditations.prefix(3)) { meditation in
+                        MeditationCard(meditation: meditation)
+                            .frame(width: 280, height: 180)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    private var allMeditationsSection: some View {
+        VStack(alignment: .leading) {
+            Text("Tüm Meditasyonlar")
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .padding(.horizontal)
+                .padding(.top, 20)
+            
+            ForEach(filteredMeditations) { meditation in
+                MeditationListItem(meditation: meditation)
+                    .padding(.horizontal)
+            }
+        }
+    }
+    
+    // MARK: - Yardımcı Metotlar
+    
+    private var filteredMeditations: [Meditation] {
+        return sampleMeditations.filter { $0.type == selectedCategory }
+    }
+}
+
+// MARK: - Kategori Seçici Bileşeni
+
+struct CategorySelectorView: View {
+    @Binding var selectedCategory: MeditationType
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 15) {
+                ForEach(MeditationType.allCases, id: \.self) { type in
+                    CategoryButton(
+                        type: type,
+                        isSelected: selectedCategory == type,
+                        action: {
+                            withAnimation {
+                                selectedCategory = type
+                            }
+                        }
+                    )
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+        }
+        .background(Color.white)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 3)
+    }
+}
+
+
+// MARK: - Meditasyon Kartı Bileşenleri
+
 struct MeditationCard: View {
     let meditation: Meditation
     
@@ -147,50 +147,66 @@ struct MeditationCard: View {
             ZStack(alignment: .bottom) {
                 // Arka plan
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(colors: [meditation.type.color.opacity(0.7), meditation.type.color]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(cardGradient)
+                    .shadow(color: meditation.type.color.opacity(0.3), radius: 10, x: 0, y: 5)
                 
-                // İkon
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Spacer()
-                        
-                        Image(systemName: meditation.imageName)
-                            .font(.system(size: 50))
-                            .foregroundColor(.white.opacity(0.3))
-                            .padding(.trailing, 20)
-                            .padding(.top, 20)
-                    }
-                    
-                    Spacer()
-                    
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(meditation.title)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                        
-                        Text("\(meditation.duration) dakika")
-                            .font(.system(size: 15))
-                            .foregroundColor(.white.opacity(0.8))
-                        
-                        Text(meditation.description)
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.8))
-                            .lineLimit(2)
-                    }
-                    .padding()
-                }
+                // İçerik
+                cardContent
             }
+        }
+    }
+    
+    private var cardGradient: LinearGradient {
+        LinearGradient(
+            gradient: Gradient(colors: [meditation.type.color.opacity(0.8), meditation.type.color]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+    
+    private var cardContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Üst kısım - ikon ve süre
+            HStack {
+                Image(systemName: meditation.imageName)
+                    .font(.system(size: 20))
+                    .foregroundColor(.white)
+                    .frame(width: 40, height: 40)
+                    .background(Color.white.opacity(0.2))
+                    .clipShape(Circle())
+                
+                Spacer()
+                
+                Text("\(meditation.duration) dakika")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(15)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            
+            Spacer()
+            
+            // Alt kısım - başlık ve açıklama
+            VStack(alignment: .leading, spacing: 5) {
+                Text(meditation.title)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                
+                Text(meditation.description)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(2)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
         }
     }
 }
 
-// Meditation List Item
 struct MeditationListItem: View {
     let meditation: Meditation
     
@@ -198,221 +214,423 @@ struct MeditationListItem: View {
         NavigationLink(destination: MeditationDetailView(meditation: meditation)) {
             HStack(spacing: 15) {
                 // İkon
-                ZStack {
-                    Circle()
-                        .fill(meditation.type.color.opacity(0.2))
-                        .frame(width: 50, height: 50)
-                    
-                    Image(systemName: meditation.imageName)
-                        .font(.system(size: 22))
-                        .foregroundColor(meditation.type.color)
-                }
+                typeIconView
                 
                 // İçerik
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(meditation.title)
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                    
-                    Text(meditation.description)
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
+                contentView
                 
                 Spacer()
                 
                 // Süre
-                VStack(alignment: .trailing) {
-                    Text("\(meditation.duration) dk")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(meditation.type.color)
-                }
+                durationView
             }
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 15)
-                    .fill(Color("CardBackground"))
+                    .fill(Color.white)
                     .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
             )
         }
     }
+    
+    private var typeIconView: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [meditation.type.color.opacity(0.8), meditation.type.color]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 50, height: 50)
+                .shadow(color: meditation.type.color.opacity(0.2), radius: 5, x: 0, y: 3)
+            
+            Image(systemName: meditation.imageName)
+                .font(.system(size: 22))
+                .foregroundColor(.white)
+        }
+    }
+    
+    private var contentView: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(meditation.title)
+                .font(.system(size: 16, weight: .medium, design: .rounded))
+            
+            Text(meditation.description)
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+        }
+    }
+    
+    private var durationView: some View {
+        Text("\(meditation.duration) dk")
+            .font(.system(size: 14, weight: .medium, design: .rounded))
+            .foregroundColor(meditation.type.color)
+    }
 }
 
-// Meditation Detail View
+// MARK: - Meditasyon Detay Görünümü
+
+class MeditationAudioPlayer: ObservableObject {
+    private var audioPlayer: AVAudioPlayer?
+    @Published var isPlaying = false
+    @Published var progress: Float = 0.0
+    @Published var currentTime: TimeInterval = 0
+    @Published var duration: TimeInterval = 0
+    
+    private var timer: Timer?
+    
+    init() {
+        setupAudioSession()
+    }
+    
+    deinit {
+        timer?.invalidate()
+    }
+    
+    private func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Audio session setup failed: \(error)")
+        }
+    }
+    
+    func loadAudio() {
+        // Örnek ses dosyası - gerçek projede bundle'dan yüklenecek
+        guard let url = Bundle.main.url(forResource: "meditation_sound", withExtension: "mp3") else {
+            // Eğer gerçek ses dosyası yoksa, simüle edelim
+            self.duration = 300 // 5 dakika simülasyon
+            return
+        }
+        
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.prepareToPlay()
+            self.duration = audioPlayer?.duration ?? 300
+        } catch {
+            print("Audio player setup failed: \(error)")
+        }
+    }
+    
+    func play() {
+        if audioPlayer == nil {
+            // Simüle edilmiş ses için timer kullanımı
+            simulatePlayback()
+            return
+        }
+        
+        audioPlayer?.play()
+        isPlaying = true
+        startTimer()
+    }
+    
+    func pause() {
+        audioPlayer?.pause()
+        isPlaying = false
+        timer?.invalidate()
+    }
+    
+    func seek(to time: TimeInterval) {
+        currentTime = time
+        progress = Float(currentTime / duration)
+        
+        if audioPlayer != nil {
+            audioPlayer?.currentTime = time
+        }
+    }
+    
+    func forward15() {
+        let newTime = min(currentTime + 15, duration)
+        seek(to: newTime)
+    }
+    
+    func backward15() {
+        let newTime = max(currentTime - 15, 0)
+        seek(to: newTime)
+    }
+    
+    private func startTimer() {
+        timer?.invalidate()
+        
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            
+            if let player = self.audioPlayer {
+                self.currentTime = player.currentTime
+                self.progress = Float(self.currentTime / self.duration)
+                
+                if !player.isPlaying {
+                    self.isPlaying = false
+                    self.timer?.invalidate()
+                }
+            } else {
+                // Simülasyon durumunda zaman ilerletme
+                if self.isPlaying {
+                    self.updateSimulatedTime()
+                }
+            }
+        }
+    }
+    
+    // Ses dosyası yoksa oynatma simülasyonu
+    private func simulatePlayback() {
+        isPlaying = true
+        startTimer()
+    }
+    
+    private func updateSimulatedTime() {
+        let newTime = min(currentTime + 0.5, duration)
+        currentTime = newTime
+        progress = Float(currentTime / duration)
+        
+        if currentTime >= duration {
+            isPlaying = false
+            timer?.invalidate()
+        }
+    }
+}
+
 struct MeditationDetailView: View {
     let meditation: Meditation
-    @State private var isPlaying = false
-    @State private var progress: Float = 0.0
-    @State private var remainingTime = ""
+    @StateObject private var audioPlayer = MeditationAudioPlayer()
+    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                // Üst kısım - Görsel ve başlık
-                ZStack(alignment: .bottom) {
-                    // Arka plan
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [meditation.type.color.opacity(0.7), meditation.type.color]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(height: 250)
+        ZStack(alignment: .top) {
+            // Arkaplan
+            meditation.type.color.opacity(0.1)
+                .ignoresSafeArea()
+            
+            // İçerik
+            ScrollView {
+                VStack(spacing: 25) {
+                    // Başlık
+                    headerSection
                     
-                    // İkon
-                    VStack {
-                        Image(systemName: meditation.imageName)
-                            .font(.system(size: 80))
-                            .foregroundColor(.white)
-                            .padding(.bottom, 30)
-                            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
-                        
-                        Text(meditation.title)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.bottom, 20)
-                    }
+                    // Açıklama
+                    descriptionSection
+                    
+                    // Oynatma kontrolleri
+                    playbackControls
                 }
-                .edgesIgnoringSafeArea(.top)
-                
-                // Meditasyon bilgileri
-                VStack(alignment: .leading, spacing: 15) {
-                    HStack(spacing: 20) {
-                        InfoItem(icon: "clock.fill", text: "\(meditation.duration) Dakika")
-                        InfoItem(icon: meditation.type.icon, text: meditation.type.rawValue)
-                    }
-                    
-                    Text("Hakkında")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .padding(.top, 5)
-                    
-                    Text(meditation.description)
-                        .font(.system(size: 16))
-                        .foregroundColor(.secondary)
-                        .lineSpacing(5)
-                    
-                    // Oynatma kontrolü
-                    VStack(spacing: 15) {
-                        // İlerleme çubuğu
-                        ProgressBar(value: $progress)
-                            .frame(height: 6)
-                            .padding(.top, 10)
-                        
-                        // Zaman göstergesi
-                        HStack {
-                            Text(formatTime(Int(Float(meditation.duration * 60) * progress)))
-                                .font(.system(size: 14, design: .monospaced))
-                                .foregroundColor(.secondary)
-                            
-                            Spacer()
-                            
-                            Text(remainingTime)
-                                .font(.system(size: 14, design: .monospaced))
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        // Playback kontrolleri
-                        HStack(spacing: 30) {
-                            Spacer()
-                            
-                            Button(action: {
-                                // 15 saniye geri
-                            }) {
-                                Image(systemName: "gobackward.15")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.primary)
-                            }
-                            
-                            Button(action: {
-                                isPlaying.toggle()
-                                simulatePlayback()
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(meditation.type.color)
-                                        .frame(width: 70, height: 70)
-                                    
-                                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.white)
-                                }
-                            }
-                            
-                            Button(action: {
-                                // 15 saniye ileri
-                            }) {
-                                Image(systemName: "goforward.15")
-                                    .font(.system(size: 30))
-                                    .foregroundColor(.primary)
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(.vertical, 20)
-                    }
-                    .padding(.top, 20)
-                }
-                .padding()
             }
+            
+            // Üst navigasyon çubuğu
+            navigationBar
         }
-        .navigationBarTitle("", displayMode: .inline)
-        .edgesIgnoringSafeArea(.top)
+        .navigationBarHidden(true)
         .onAppear {
-            remainingTime = formatTime(meditation.duration * 60)
+            audioPlayer.loadAudio()
+        }
+        .onDisappear {
+            audioPlayer.pause()
         }
     }
     
-    private func simulatePlayback() {
-        // Gerçek bir meditasyon uygulamasında burada ses oynatma kodları olacaktır
-        // Şu anda sadece ilerleme simülasyonu yapıyoruz
-        if isPlaying {
-            Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-                if self.progress < 1.0 && self.isPlaying {
-                    self.progress += 1.0 / Float(self.meditation.duration * 60)
-                    let remainingSeconds = Int(Float(self.meditation.duration * 60) * (1 - self.progress))
-                    self.remainingTime = formatTime(remainingSeconds)
-                } else {
-                    timer.invalidate()
-                    if self.progress >= 1.0 {
-                        self.isPlaying = false
+    // MARK: - UI Bileşenleri
+    
+    private var headerSection: some View {
+        VStack(spacing: 15) {
+            // Görsel
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [meditation.type.color.opacity(0.7), meditation.type.color]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 150, height: 150)
+                    .shadow(color: meditation.type.color.opacity(0.3), radius: 15, x: 0, y: 10)
+                
+                Image(systemName: meditation.imageName)
+                    .font(.system(size: 60))
+                    .foregroundColor(.white)
+                    .offset(y: audioPlayer.isPlaying ? -5 : 0)
+                    .animation(
+                        audioPlayer.isPlaying ?
+                        Animation.easeInOut(duration: 1).repeatForever(autoreverses: true) :
+                        .default,
+                        value: audioPlayer.isPlaying
+                    )
+            }
+            
+            // Başlık
+            Text(meditation.title)
+                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
+            
+            // Süre
+            Text("\(meditation.duration) dakika • \(meditation.type.rawValue)")
+                .font(.system(size: 16))
+                .foregroundColor(.secondary)
+        }
+        .padding(.top, 40)
+    }
+    
+    private var descriptionSection: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Text("Hakkında")
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+            
+            Text(meditation.description)
+                .font(.system(size: 16))
+                .foregroundColor(.secondary)
+                .lineSpacing(5)
+        }
+        .padding(.horizontal, 25)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private var playbackControls: some View {
+        VStack(spacing: 20) {
+            // İlerleme göstergesi
+            VStack(spacing: 8) {
+                // Slider
+                Slider(value: Binding(
+                    get: { audioPlayer.progress },
+                    set: { value in
+                        audioPlayer.seek(to: Double(value) * audioPlayer.duration)
                     }
+                ), in: 0...1, step: 0.01)
+                .accentColor(meditation.type.color)
+                
+                // Zaman göstergesi
+                HStack {
+                    Text(formatTime(audioPlayer.currentTime))
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text(formatTime(audioPlayer.duration - audioPlayer.currentTime))
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(.secondary)
                 }
+            }
+            .padding(.horizontal, 25)
+            
+            // Kontrol butonları
+            HStack(spacing: 30) {
+                // Geri sarma
+                backwardButton
+                
+                // Oynat/Duraklat
+                playPauseButton
+                
+                // İleri sarma
+                forwardButton
+            }
+        }
+        .padding(.top, 20)
+        .padding(.bottom, 50)
+    }
+    
+    private var backwardButton: some View {
+        Button(action: {
+            audioPlayer.backward15()
+        }) {
+            ZStack {
+                Circle()
+                    .fill(Color(.systemGray6))
+                    .frame(width: 60, height: 60)
+                
+                Image(systemName: "gobackward.15")
+                    .font(.system(size: 24))
+                    .foregroundColor(.primary)
             }
         }
     }
     
-    private func formatTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
+    private var playPauseButton: some View {
+        Button(action: {
+            if audioPlayer.isPlaying {
+                audioPlayer.pause()
+            } else {
+                audioPlayer.play()
+            }
+        }) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [meditation.type.color, meditation.type.color.opacity(0.8)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 80, height: 80)
+                    .shadow(color: meditation.type.color.opacity(0.3), radius: 10, x: 0, y: 5)
+                
+                Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 30))
+                    .foregroundColor(.white)
+            }
+        }
+    }
+    
+    private var forwardButton: some View {
+        Button(action: {
+            audioPlayer.forward15()
+        }) {
+            ZStack {
+                Circle()
+                    .fill(Color(.systemGray6))
+                    .frame(width: 60, height: 60)
+                
+                Image(systemName: "goforward.15")
+                    .font(.system(size: 24))
+                    .foregroundColor(.primary)
+            }
+        }
+    }
+    
+    private var navigationBar: some View {
+        HStack {
+            Button(action: {
+                presentationMode.wrappedValue.dismiss()
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(.primary)
+                    .padding(10)
+                    .background(Color.white.opacity(0.9))
+                    .clipShape(Circle())
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                // Favorilere ekle
+            }) {
+                Image(systemName: "heart")
+                    .font(.system(size: 22))
+                    .foregroundColor(.primary)
+                    .padding(10)
+                    .background(Color.white.opacity(0.9))
+                    .clipShape(Circle())
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+    }
+    
+    // MARK: - Yardımcı Metotlar
+    
+    private func formatTime(_ seconds: TimeInterval) -> String {
+        let minutes = Int(seconds) / 60
+        let remainingSeconds = Int(seconds) % 60
         return String(format: "%d:%02d", minutes, remainingSeconds)
     }
 }
 
-// Info Item Component
-struct InfoItem: View {
-    let icon: String
-    let text: String
-    
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 16))
-                .foregroundColor(.accentColor)
-            
-            Text(text)
-                .font(.system(size: 16))
-                .foregroundColor(.primary)
-        }
-        .padding(.horizontal, 15)
-        .padding(.vertical, 10)
-        .background(Color("InputBackground"))
-        .cornerRadius(10)
-    }
-}
+// MARK: - İlerleme Çubuğu Bileşeni
 
-// Custom Progress Bar
 struct ProgressBar: View {
     @Binding var value: Float
     
@@ -426,7 +644,7 @@ struct ProgressBar: View {
                 
                 // Değer çubuğu
                 Rectangle()
-                    .fill(Color.accentColor)
+                    .fill(Color.blue)
                     .frame(width: CGFloat(value) * geometry.size.width)
                     .cornerRadius(5)
             }

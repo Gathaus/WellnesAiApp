@@ -24,7 +24,7 @@ struct HomeView: View {
                     
                     ZStack {
                         Circle()
-                            .fill(Color.accentColor.opacity(0.1))
+                            .fill(Color.blue.opacity(0.2))
                             .frame(width: 50, height: 50)
                         
                         Text("✨")
@@ -33,7 +33,7 @@ struct HomeView: View {
                 }
                 .padding(.top, 10)
                 
-                // Bugünkü ruh hali kartı
+                // Bugünkü ruh hali kartı - Emojileri daha görünür hale getirdik
                 VStack(spacing: 15) {
                     Text("Bugün nasıl hissediyorsun?")
                         .font(.system(size: 18, weight: .medium, design: .rounded))
@@ -49,15 +49,21 @@ struct HomeView: View {
                             }) {
                                 VStack {
                                     Text(mood.emoji)
-                                        .font(.system(size: 35))
-                                        .padding(10)
+                                        .font(.system(size: 42))  // Emoji boyutunu artırdık
+                                        .shadow(color: .gray.opacity(0.3), radius: 2, x: 1, y: 1)  // Hafif gölge ekledik
+                                        .padding(8)
                                         .background(
                                             Circle()
-                                                .fill(currentMood == mood ? Color.accentColor.opacity(0.2) : Color.gray.opacity(0.1))
+                                                .fill(currentMood == mood ?
+                                                      LinearGradient(gradient: Gradient(colors: [.blue.opacity(0.6), .purple.opacity(0.6)]),
+                                                                     startPoint: .topLeading,
+                                                                     endPoint: .bottomTrailing)
+                                                      : Color.gray.opacity(0.1))
+                                                .frame(width: 75, height: 75)
                                         )
                                     
                                     Text(mood.rawValue)
-                                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                                        .font(.system(size: 14, weight: .medium, design: .rounded))
                                         .foregroundColor(currentMood == mood ? .primary : .secondary)
                                 }
                             }
@@ -67,41 +73,26 @@ struct HomeView: View {
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color("CardBackground"))
+                        .fill(Color.white)
                         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                 )
                 
-                // Günlük pozitif mesaj kartı
+                // Günlük pozitif mesaj kartı - Daha anlamlı tasarım
                 VStack(spacing: 20) {
                     HStack {
-                        Image(systemName: "sun.max.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.yellow)
-                        
-                        Text("Günün Pozitif Mesajı")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                        Text("📝 Günün İlham Sözü")  // İsim değişikliği
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
                         
                         Spacer()
-                        
-                        Button(action: {
-                            withAnimation {
-                                viewModel.refreshDailyAffirmation()
-                            }
-                        }) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                                .font(.system(size: 16))
-                                .foregroundColor(.blue)
-                                .padding(8)
-                                .background(Color.blue.opacity(0.1))
-                                .clipShape(Circle())
-                        }
                     }
                     
                     Text(viewModel.dailyAffirmation)
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 20, weight: .medium, design: .serif))  // Yazı tipini değiştirdik
+                        .italic()  // İtalik yaptık
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, 5)
-                        .lineSpacing(5)
+                        .padding(.vertical, 15)
+                        .lineSpacing(8)
+                        .foregroundColor(.black.opacity(0.8))
                     
                     // Sosyal paylaşım butonları
                     HStack(spacing: 15) {
@@ -114,14 +105,33 @@ struct HomeView: View {
                         }
                     }
                 }
-                .padding(20)
+                .padding(25)
                 .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color("CardBackground"))
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.white, Color.blue.opacity(0.1)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                        
+                        // Arka planda dekoratif elemanlar
+                        Circle()
+                            .fill(Color.purple.opacity(0.1))
+                            .frame(width: 100, height: 100)
+                            .offset(x: -120, y: -60)
+                        
+                        Circle()
+                            .fill(Color.blue.opacity(0.1))
+                            .frame(width: 60, height: 60)
+                            .offset(x: 130, y: 70)
+                    }
+                    .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                 )
                 
-                // Hızlı erişim kartları
+                // Hızlı erişim kartları - Moderni tasarım
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
                     // Sohbet kartı
                     NavigationLink(destination: ChatView()) {
@@ -143,23 +153,13 @@ struct HomeView: View {
                         )
                     }
                     
-                    // İpuçları kartı
-                    NavigationLink(destination: TipsView()) {
+                    // İlham kartı (İpuçları yerine)
+                    NavigationLink(destination: InspirationView()) {
                         QuickAccessCard(
                             icon: "lightbulb.fill",
-                            title: "İpuçları",
-                            description: "Wellness önerileri",
+                            title: "İlham Sözleri",  // İpuçları yerine İlham Sözleri
+                            description: "Günlük motivasyon",
                             color: .orange
-                        )
-                    }
-                    
-                    // Hedefler kartı
-                    NavigationLink(destination: GoalsView()) {
-                        QuickAccessCard(
-                            icon: "target",
-                            title: "Hedefler",
-                            description: "İlerlemeni takip et",
-                            color: .red
                         )
                     }
                 }
@@ -175,14 +175,14 @@ struct HomeView: View {
                 .padding(20)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color("CardBackground"))
+                        .fill(Color.white)
                         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                 )
             }
             .padding(.horizontal)
             .padding(.bottom, 100)
         }
-        .background(Color("BackgroundColor").ignoresSafeArea())
+        .background(Color(.systemGray6).ignoresSafeArea())
         .navigationBarTitle("WellnessAI", displayMode: .large)
         .navigationBarItems(trailing:
             Button(action: {
@@ -196,7 +196,7 @@ struct HomeView: View {
     }
 }
 
-// Hızlı erişim kartı komponenti
+// Hızlı erişim kartı komponenti - Modern tasarım
 struct QuickAccessCard: View {
     let icon: String
     let title: String
@@ -205,27 +205,45 @@ struct QuickAccessCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 22))
-                .foregroundColor(.white)
-                .padding(12)
-                .background(color)
-                .clipShape(Circle())
-            
-            Text(title)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+            // İkon ve başlık
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [color, color.opacity(0.7)]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                
+                Text(title)
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+            }
             
             Text(description)
                 .font(.system(size: 14))
                 .foregroundColor(.secondary)
             
             Spacer()
+            
+            // Devam et ikonu
+            HStack {
+                Spacer()
+                
+                Image(systemName: "chevron.right.circle.fill")
+                    .foregroundColor(color.opacity(0.7))
+                    .font(.system(size: 22))
+            }
         }
-        .padding()
-        .frame(height: 140)
+        .padding(15)
+        .frame(height: 135)
         .background(
-            RoundedRectangle(cornerRadius: 15)
-                .fill(Color("CardBackground"))
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
                 .shadow(color: color.opacity(0.1), radius: 10, x: 0, y: 5)
         )
     }
@@ -266,9 +284,16 @@ struct MoodHistoryChart: View {
                 VStack {
                     Text(entry.mood.emoji)
                         .font(.system(size: 20))
+                        .shadow(color: .gray.opacity(0.3), radius: 1, x: 1, y: 1)  // Hafif gölge ekledik
                     
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(moodColor(entry.mood))
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [moodColor(entry.mood).opacity(0.7), moodColor(entry.mood)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                         .frame(height: CGFloat(entry.mood.value) * 25)
                     
                     Text(formatDate(entry.date))
@@ -294,40 +319,4 @@ struct MoodHistoryChart: View {
         formatter.dateFormat = "dd.MM"
         return formatter.string(from: date)
     }
-}
-
-// Ruh hali türleri
-enum MoodType: String, CaseIterable {
-    case fantastic = "Harika"
-    case good = "İyi"
-    case neutral = "Normal"
-    case bad = "Kötü"
-    case awful = "Berbat"
-    
-    var emoji: String {
-        switch self {
-        case .fantastic: return "😁"
-        case .good: return "🙂"
-        case .neutral: return "😐"
-        case .bad: return "😕"
-        case .awful: return "😢"
-        }
-    }
-    
-    var value: Int {
-        switch self {
-        case .fantastic: return 5
-        case .good: return 4
-        case .neutral: return 3
-        case .bad: return 2
-        case .awful: return 1
-        }
-    }
-}
-
-// Ruh hali geçmişi girdisi
-struct MoodHistoryEntry: Identifiable {
-    let id = UUID()
-    let mood: MoodType
-    let date: Date
 }

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 struct MoodHistoryEntry: Identifiable, Codable {
     let id: UUID
