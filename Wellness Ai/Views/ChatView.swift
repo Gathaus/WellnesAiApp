@@ -157,7 +157,7 @@ struct ChatView: View {
                 .background(Color.white)
                 .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: -5)
             }
-            .padding(.bottom, 50) // Tab bar için boşluk bırak
+            .padding(.bottom, 80) // Tab bar için boşluk bırak
         }
         .onTapGesture {
             isTextFieldFocused = false
