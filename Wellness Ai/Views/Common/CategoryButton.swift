@@ -4,7 +4,7 @@ struct CategoryButton: View {
     let type: MeditationType
     let isSelected: Bool
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack {
@@ -26,13 +26,13 @@ struct CategoryButton: View {
                             .fill(Color(.systemGray6))
                             .frame(width: 65, height: 65)
                     }
-                    
+
                     // İkon
                     Image(systemName: type.icon)
                         .font(.system(size: 24))
                         .foregroundColor(isSelected ? .white : .gray)
                 }
-                
+
                 // Kategori adı
                 Text(type.rawValue)
                     .font(.system(size: 12, weight: .medium, design: .rounded))

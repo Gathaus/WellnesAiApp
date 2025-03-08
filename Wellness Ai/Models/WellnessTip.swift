@@ -1,6 +1,5 @@
 import Foundation
 
-// Wellness ipucu modeli
 struct WellnessTip: Identifiable, Codable, Hashable {
     let id: UUID
     let content: String

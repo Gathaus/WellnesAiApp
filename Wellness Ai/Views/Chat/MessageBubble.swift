@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MessageBubble: View {
     let message: Message
-    
+
     var body: some View {
         HStack {
             if message.isFromUser {
