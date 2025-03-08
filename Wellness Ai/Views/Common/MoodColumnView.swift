@@ -5,17 +5,23 @@ struct MoodColumnView: View {
     let columnWidth: CGFloat
 
     var body: some View {
-        VStack {
+        VStack(spacing: 4) {
             Text(entry.mood.emoji)
-                .font(.system(size: 20))
+                .font(.system(size: 18))
+                .minimumScaleFactor(0.8)
+                .lineLimit(1)
+                .frame(width: columnWidth)
                 .shadow(color: .gray.opacity(0.3), radius: 1, x: 1, y: 1)
 
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: 8)
                 .fill(moodGradient(for: entry.mood))
-                .frame(width: columnWidth, height: CGFloat(entry.mood.value) * 25)
+                .frame(width: columnWidth * 0.8, height: CGFloat(entry.mood.value) * 20)
 
             Text(formatDate(entry.date))
-                .font(.system(size: 10))
+                .font(.system(size: 9))
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .frame(width: columnWidth)
                 .foregroundColor(.secondary)
         }
     }

@@ -3,52 +3,77 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var viewModel: WellnessViewModel
     @State private var currentMood: MoodType = .neutral
+    @State private var showCopiedMessage = false
+    @State private var showNotifications = false
+
+    let sampleNotifications = [
+        "Günün meditasyonunu yapmayı unutma!",
+        "Bugün için su içme hedefinin %50'sine ulaştın.",
+        "Yeni bir ilham sözü hazır, kontrol et!"
+    ]
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 25) {
-                // Üst karşılama kartı
-                greetingCard
-                
-                // Bugünkü ruh hali kartı
-                moodSelectionCard
-                
-                // Günlük pozitif mesaj kartı
-                dailyAffirmationCard
-                
-                // Hızlı erişim kartları
-                quickAccessCardsSection
-                
-                // Ruh hali geçmişi
-                moodHistorySection
+        ZStack {
+            ScrollView {
+                VStack(spacing: 25) {
+                    // Üst karşılama kartı
+                    greetingCard
+
+                    // Bugünkü ruh hali kartı
+                    moodSelectionCard
+
+                    // Günlük pozitif mesaj kartı
+                    dailyAffirmationCard
+
+                    // Hızlı erişim kartları
+                    quickAccessCardsSection
+
+                    // Ruh hali geçmişi
+                    moodHistorySection
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 100)
             }
-            .padding(.horizontal)
-            .padding(.bottom, 100)
+            .background(Color(.systemGray6).ignoresSafeArea())
+            .navigationBarTitle("WellnessAI", displayMode: .large)
+            .navigationBarItems(trailing:
+                Button(action: {
+                    withAnimation(.spring()) {
+                        showNotifications.toggle()
+                    }
+                }) {
+                    Image(systemName: "bell")
+                        .font(.system(size: 18))
+                        .foregroundColor(.primary)
+                        .overlay(
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 8, height: 8)
+                                .offset(x: 7, y: -7)
+                                .opacity(showNotifications ? 0 : 1)
+                        )
+                }
+            )
+
+            // Notification overlay
+            if showNotifications {
+                notificationsOverlay
+            }
         }
-        .background(Color(.systemGray6).ignoresSafeArea())
-        .navigationBarTitle("WellnessAI", displayMode: .large)
-        .navigationBarItems(trailing:
-            Button(action: {
-                // Bildirim ayarları
-            }) {
-                Image(systemName: "bell")
-                    .font(.system(size: 18))
-                    .foregroundColor(.primary)
-            }
-        )
     }
     
     // MARK: - Component Views
     private var greetingCard: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 5) {
                 Text("Merhaba,")
                     .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
                 
                 if let user = viewModel.user {
                     Text(user.name)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
                 }
             }
             
@@ -84,11 +109,12 @@ struct HomeView: View {
     
     private var moodButtonsRow: some View {
         HStack(spacing: 20) {
-            moodButton(for: MoodType.fantastic)
-            moodButton(for: MoodType.good)
-            moodButton(for: MoodType.neutral)
-            moodButton(for: MoodType.bad)
+            // Reversed order: awful to fantastic
             moodButton(for: MoodType.awful)
+            moodButton(for: MoodType.bad)
+            moodButton(for: MoodType.neutral)
+            moodButton(for: MoodType.good)
+            moodButton(for: MoodType.fantastic)
         }
     }
     
@@ -154,14 +180,39 @@ struct HomeView: View {
                 .lineSpacing(8)
                 .foregroundColor(.black.opacity(0.8))
             
-            // Sosyal paylaşım butonları
-            HStack(spacing: 15) {
-                shareButtonView(text: "Kopyala", icon: "doc.on.doc.fill", color: .blue) {
-                    UIPasteboard.general.string = viewModel.dailyAffirmation
+            // Copied message overlay
+            ZStack {
+                // Sosyal paylaşım butonları
+                HStack(spacing: 15) {
+                    shareButtonView(text: "Kopyala", icon: "doc.on.doc.fill", color: .blue) {
+                        UIPasteboard.general.string = viewModel.dailyAffirmation
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showCopiedMessage = true
+                        }
+                        // Hide the message after a delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showCopiedMessage = false
+                            }
+                        }
+                    }
+
+                    shareButtonView(text: "Paylaş", icon: "square.and.arrow.up.fill", color: .green) {
+                        // Paylaşım işlemleri buraya
+                    }
                 }
-                
-                shareButtonView(text: "Paylaş", icon: "square.and.arrow.up.fill", color: .green) {
-                    // Paylaşım işlemleri buraya
+                .opacity(showCopiedMessage ? 0 : 1)
+
+                // "Kopyalandı" message
+                if showCopiedMessage {
+                    Text("Kopyalandı ✓")
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(Color.green)
+                        .cornerRadius(20)
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
         }
@@ -267,6 +318,80 @@ struct HomeView: View {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.white)
                 .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+        )
+    }
+
+    // Notification Overlay
+    private var notificationsOverlay: some View {
+        VStack {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("Bildirimler")
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+
+                    Spacer()
+
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            showNotifications = false
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 22))
+                    }
+                }
+                .padding()
+
+                Divider()
+
+                if sampleNotifications.isEmpty {
+                    VStack {
+                        Text("Bildirim yok")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                            .padding(.vertical, 30)
+                    }
+                    .frame(maxWidth: .infinity)
+                } else {
+                    ScrollView {
+                        VStack(spacing: 0) {
+                            ForEach(sampleNotifications, id: \.self) { notification in
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(notification)
+                                        .font(.system(size: 16))
+
+                                    Text("Az önce")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                                Divider()
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 300)
+                }
+            }
+            .background(Color.white)
+            .cornerRadius(15)
+            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+            .padding(.horizontal)
+            .transition(.move(edge: .top).combined(with: .opacity))
+
+            Spacer()
+        }
+        .padding(.top, 10)
+        .background(
+            Color.black.opacity(0.2)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation(.spring()) {
+                        showNotifications = false
+                    }
+                }
         )
     }
 }

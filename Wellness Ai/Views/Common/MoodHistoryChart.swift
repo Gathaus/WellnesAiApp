@@ -7,25 +7,29 @@ struct MoodHistoryChart: View {
         GeometryReader { geometry in
             HStack(alignment: .bottom, spacing: 0) {
                 if !moodHistory.isEmpty {
-                    // Instead of ForEach, use explicit views
+                    // Calculate column width and spacing
                     let columns = min(moodHistory.count, 7)
-                    let spacing: CGFloat = 10
+                    let spacing: CGFloat = 8 // Reduced spacing
                     let availableWidth = geometry.size.width - (spacing * CGFloat(columns - 1))
-                    let columnWidth = availableWidth / CGFloat(columns)
+                    let columnWidth = min(availableWidth / CGFloat(columns), 45) // Limit column width
 
-                    // Generate column views
+                    // Create evenly spaced columns with proper padding
                     ForEach(0..<columns, id: \.self) { index in
                         if index < moodHistory.count {
                             let entry = moodHistory[index]
+                            if index > 0 {
+                                Spacer().frame(width: spacing)
+                            }
+
                             MoodColumnView(
                                 entry: entry,
                                 columnWidth: columnWidth
                             )
-                            if index < columns - 1 {
-                                Spacer().frame(width: spacing)
-                            }
                         }
                     }
+
+                    // Add extra padding at the end to prevent cutoff
+                    Spacer(minLength: 5)
                 } else {
                     // Empty state
                     Text("Henüz ruh hali verisi yok")
@@ -34,7 +38,7 @@ struct MoodHistoryChart: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 10)
         }
     }
 }
