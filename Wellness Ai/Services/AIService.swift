@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftUI
 
 class AIService: AIServiceProtocol {
     func generateResponse(to message: String) -> AnyPublisher<String, Never> {
