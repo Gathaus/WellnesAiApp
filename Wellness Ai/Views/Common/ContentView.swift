@@ -30,7 +30,7 @@ struct ContentView: View {
     private var tabContent: some View {
         switch selectedTab {
         case 0:
-            HomeView()
+            HomeView(selectedTab: $selectedTab)
                 .environmentObject(viewModel)
         case 1:
             MeditationView()
@@ -45,7 +45,7 @@ struct ContentView: View {
             ProfileView(showSubscribeSheet: $showSubscribeSheet)
                 .environmentObject(viewModel)
         default:
-            HomeView()
+            HomeView(selectedTab: $selectedTab)
                 .environmentObject(viewModel)
         }
     }
