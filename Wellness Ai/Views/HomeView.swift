@@ -5,13 +5,14 @@ struct HomeView: View {
     @State private var currentMood: MoodType = .neutral
     @State private var showCopiedMessage = false
     @State private var showNotifications = false
+    @Binding var selectedTab: Int
 
     let sampleNotifications = [
         "Günün meditasyonunu yapmayı unutma!",
         "Bugün için su içme hedefinin %50'sine ulaştın.",
         "Yeni bir ilham sözü hazır, kontrol et!"
     ]
-    
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -61,7 +62,7 @@ struct HomeView: View {
             }
         }
     }
-    
+
     // MARK: - Component Views
     private var greetingCard: some View {
         HStack {
@@ -69,34 +70,34 @@ struct HomeView: View {
                 Text("Merhaba,")
                     .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
-                
+
                 if let user = viewModel.user {
                     Text(user.name)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                 }
             }
-            
+
             Spacer()
-            
+
             ZStack {
                 Circle()
                     .fill(Color.blue.opacity(0.2))
                     .frame(width: 50, height: 50)
-                
+
                 Text("✨")
                     .font(.system(size: 25))
             }
         }
         .padding(.top, 10)
     }
-    
+
     private var moodSelectionCard: some View {
         VStack(spacing: 15) {
             Text("Bugün nasıl hissediyorsun?")
                 .font(.system(size: 18, weight: .medium, design: .rounded))
                 .foregroundColor(.secondary)
-            
+
             moodButtonsRow
         }
         .padding(20)
@@ -106,7 +107,7 @@ struct HomeView: View {
                 .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
         )
     }
-    
+
     private var moodButtonsRow: some View {
         HStack(spacing: 20) {
             // Reversed order: awful to fantastic
@@ -117,7 +118,7 @@ struct HomeView: View {
             moodButton(for: MoodType.fantastic)
         }
     }
-    
+
     private func moodButton(for mood: MoodType) -> some View {
         Button(action: {
             withAnimation {
@@ -127,14 +128,14 @@ struct HomeView: View {
         }) {
             VStack {
                 moodEmojiView(for: mood)
-                
+
                 Text(mood.rawValue)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundColor(currentMood == mood ? .primary : .secondary)
             }
         }
     }
-    
+
     private func moodEmojiView(for mood: MoodType) -> some View {
         Text(mood.emoji)
             .font(.system(size: 30))
@@ -146,7 +147,7 @@ struct HomeView: View {
                     .frame(width: 60, height: 60)
             )
     }
-    
+
     private func moodCircleGradient(for mood: MoodType) -> LinearGradient {
         if currentMood == mood {
             return LinearGradient(
@@ -162,16 +163,16 @@ struct HomeView: View {
             )
         }
     }
-    
+
     private var dailyAffirmationCard: some View {
         VStack(spacing: 20) {
             HStack {
                 Text("📝 Günün İlham Sözü")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                
+
                 Spacer()
             }
-            
+
             Text(viewModel.dailyAffirmation)
                 .font(.system(size: 20, weight: .medium, design: .serif))
                 .italic()
@@ -179,7 +180,7 @@ struct HomeView: View {
                 .padding(.vertical, 15)
                 .lineSpacing(8)
                 .foregroundColor(.black.opacity(0.8))
-            
+
             // Copied message overlay
             ZStack {
                 // Sosyal paylaşım butonları
@@ -221,7 +222,7 @@ struct HomeView: View {
             affirmationCardBackground
         )
     }
-    
+
     private var affirmationCardBackground: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
@@ -232,13 +233,13 @@ struct HomeView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-            
+
             // Arka planda dekoratif elemanlar
             Circle()
                 .fill(Color.purple.opacity(0.1))
                 .frame(width: 100, height: 100)
                 .offset(x: -120, y: -60)
-            
+
             Circle()
                 .fill(Color.blue.opacity(0.1))
                 .frame(width: 60, height: 60)
@@ -246,13 +247,13 @@ struct HomeView: View {
         }
         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
     }
-    
+
     private func shareButtonView(text: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Image(systemName: icon)
                     .font(.system(size: 14))
-                
+
                 Text(text)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
             }
@@ -263,7 +264,7 @@ struct HomeView: View {
             .cornerRadius(20)
         }
     }
-    
+
     private var quickAccessCardsSection: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             chatCardView
@@ -271,9 +272,11 @@ struct HomeView: View {
             inspirationCardView
         }
     }
-    
+
     private var chatCardView: some View {
-        NavigationLink(destination: ChatView().environmentObject(viewModel)) {
+        Button(action: {
+            selectedTab = 2 // Switch to chat tab
+        }) {
             QuickAccessCard(
                 icon: "message.fill",
                 title: "Sohbet",
@@ -282,9 +285,11 @@ struct HomeView: View {
             )
         }
     }
-    
+
     private var meditationCardView: some View {
-        NavigationLink(destination: MeditationView().environmentObject(viewModel)) {
+        Button(action: {
+            selectedTab = 1 // Switch to meditation tab
+        }) {
             QuickAccessCard(
                 icon: "lungs.fill",
                 title: "Meditasyon",
@@ -293,9 +298,11 @@ struct HomeView: View {
             )
         }
     }
-    
+
     private var inspirationCardView: some View {
-        NavigationLink(destination: InspirationView().environmentObject(viewModel)) {
+        Button(action: {
+            selectedTab = 3 // Switch to inspiration tab
+        }) {
             QuickAccessCard(
                 icon: "lightbulb.fill",
                 title: "İlham Sözleri",
@@ -304,12 +311,12 @@ struct HomeView: View {
             )
         }
     }
-    
+
     private var moodHistorySection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Son 7 Gün - Ruh Hali Takibi")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
-            
+
             MoodHistoryChart(moodHistory: viewModel.moodHistory)
                 .frame(height: 200)
         }
@@ -399,7 +406,7 @@ struct HomeView: View {
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            HomeView()
+            HomeView(selectedTab: .constant(0))
                 .environmentObject(WellnessViewModel())
         }
     }

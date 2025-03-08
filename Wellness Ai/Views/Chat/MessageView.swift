@@ -39,12 +39,13 @@ struct MessageView: View {
                         .fill(Color.gray.opacity(0.2))
                         .frame(width: 28, height: 28)
                         .overlay(
-                            Text("👤")
+                            Image(systemName: "person.fill")
                                 .font(.system(size: 14))
+                                .foregroundColor(.gray)
                         )
                 }
             } else {
-                // Asistan avatarı
+                // Updated friendly assistant avatar
                 if !showTime {
                     Circle()
                         .fill(
@@ -56,8 +57,9 @@ struct MessageView: View {
                         )
                         .frame(width: 28, height: 28)
                         .overlay(
-                            Text("🧠")
+                            Image(systemName: "face.smiling.fill")
                                 .font(.system(size: 14))
+                                .foregroundColor(.white)
                         )
                 }
 
@@ -90,20 +92,20 @@ struct MessageView: View {
         .padding(.horizontal, 4)
     }
 
-    private func formatMessageTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
-    }
-}
-
-struct MessageView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 20) {
-            MessageView(message: Message(content: "Merhaba, nasılsın?", isFromUser: true))
-            MessageView(message: Message(content: "Ben iyiyim, teşekkürler! Senin için ne yapabilirim?", isFromUser: false))
+        private func formatMessageTime(_ date: Date) -> String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "HH:mm"
+            return formatter.string(from: date)
         }
-        .padding()
-        .previewLayout(.sizeThatFits)
     }
-}
+
+    struct MessageView_Previews: PreviewProvider {
+        static var previews: some View {
+            VStack(spacing: 20) {
+                MessageView(message: Message(content: "Merhaba, nasılsın?", isFromUser: true))
+                MessageView(message: Message(content: "Ben iyiyim, teşekkürler! Senin için ne yapabilirim?", isFromUser: false))
+            }
+            .padding()
+            .previewLayout(.sizeThatFits)
+        }
+    }

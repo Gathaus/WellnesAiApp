@@ -5,7 +5,7 @@ struct ChatView: View {
     @State private var showSuggestions = true
     @State private var scrollToBottom = false
     @FocusState private var isTextFieldFocused: Bool
-    
+
     // Sohbet önerileri
     let chatSuggestions = [
         "Bugün kendimi biraz stresli hissediyorum",
@@ -13,7 +13,7 @@ struct ChatView: View {
         "Olumlu düşünmek için tavsiye verir misin?",
         "Daha iyi uyumak için ne yapabilirim?"
     ]
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(spacing: 0) {
@@ -57,7 +57,7 @@ struct ChatView: View {
 
             Spacer()
 
-            // Asistan avatar
+            // Updated friendly assistant avatar
             ZStack {
                 Circle()
                     .fill(LinearGradient(
@@ -67,8 +67,9 @@ struct ChatView: View {
                     ))
                     .frame(width: 45, height: 45)
 
-                Text("🧠")
+                Image(systemName: "face.smiling.fill")
                     .font(.system(size: 22))
+                    .foregroundColor(.white)
             }
         }
         .padding()
