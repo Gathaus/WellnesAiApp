@@ -119,7 +119,7 @@ struct HomeView: View {
             .background(
                 Circle()
                     .fill(moodCircleGradient(for: mood))
-                    .frame(width: 60, height: 06)
+                    .frame(width: 60, height: 60)
             )
     }
     
@@ -218,15 +218,16 @@ struct HomeView: View {
     
     private var quickAccessCardsSection: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-            // Break down each card into its own view to reduce complexity
+            // BU BÖLÜMÜ DEĞİŞTİRİYORUM - EnvironmentObject'i doğru aktarmak için
             chatCardView
             meditationCardView
             inspirationCardView
         }
     }
     
+    // BU BÖLÜMÜ DEĞİŞTİRİYORUM - NavigationLink yerine doğrudan view döndürüyorum
     private var chatCardView: some View {
-        NavigationLink(destination: ChatView()) {
+        NavigationLink(destination: ChatView().environmentObject(viewModel)) {
             QuickAccessCard(
                 icon: "message.fill",
                 title: "Sohbet",
@@ -237,7 +238,7 @@ struct HomeView: View {
     }
     
     private var meditationCardView: some View {
-        NavigationLink(destination: MeditationView()) {
+        NavigationLink(destination: MeditationView().environmentObject(viewModel)) {
             QuickAccessCard(
                 icon: "lungs.fill",
                 title: "Meditasyon",
@@ -248,7 +249,7 @@ struct HomeView: View {
     }
     
     private var inspirationCardView: some View {
-        NavigationLink(destination: InspirationView()) {
+        NavigationLink(destination: InspirationView().environmentObject(viewModel)) {
             QuickAccessCard(
                 icon: "lightbulb.fill",
                 title: "İlham Sözleri",

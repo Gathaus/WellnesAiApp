@@ -9,17 +9,22 @@ struct ContentView: View {
         ZStack(alignment: .bottom) {
             // Ana içerik alanı
             VStack {
-                // Seçilen tabın içeriği
+                // Seçilen tabın içeriği - Burayı düzenliyorum
                 if selectedTab == 0 {
                     HomeView()
+                        .environmentObject(viewModel)
                 } else if selectedTab == 1 {
                     MeditationView()
+                        .environmentObject(viewModel)
                 } else if selectedTab == 2 {
                     ChatView()
+                        .environmentObject(viewModel)
                 } else if selectedTab == 3 {
                     InspirationView()
+                        .environmentObject(viewModel)
                 } else {
                     ProfileView(showSubscribeSheet: $showSubscribeSheet)
+                        .environmentObject(viewModel)
                 }
                 
                 Spacer()

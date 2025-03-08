@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct Wellness_AiApp: App {
     @StateObject private var viewModel = WellnessViewModel()
-        @AppStorage("isDarkMode") private var isDarkMoede = false
+        @AppStorage("isDarkMode") private var isDarkMode = false
         
         var body: some Scene {
             WindowGroup {
