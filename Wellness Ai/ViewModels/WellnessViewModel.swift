@@ -3,31 +3,46 @@ import Combine
 import SwiftUI
 
 class WellnessViewModel: ObservableObject {
-    private let storageService = StorageService()
-    private let aiService = AIService()
+    // Services
+    private let storageService: StorageService
+    private let aiService: AIServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     
+    // Published properties
     @Published var user: User?
     @Published var messages: [Message] = []
     @Published var wellnessTips: [WellnessTip] = []
     @Published var dailyAffirmation: String = ""
     @Published var currentInput: String = ""
-    @Published var moodHistory: [MoodHistoryEntry] = [] // Ruh hali geçmişi
-    @Published var goals: [Goal] = [] // Hedefler
-    @Published var isPremium: Bool = false // Premium durumu
+    @Published var moodHistory: [MoodHistoryEntry] = []
+    @Published var goals: [Goal] = []
+    @Published var isPremium: Bool = false
     
-    init() {
+    init(storageService: StorageService = StorageService(), aiService: AIServiceProtocol = AIService()) {
+        self.storageService = storageService
+        self.aiService = aiService
+
         loadUserData()
         loadMessages()
+        loadMoodHistory()
+        loadGoals()
+        loadPremiumStatus()
+
         wellnessTips = aiService.getWellnessTips()
         dailyAffirmation = aiService.getDailyAffirmation()
         
-        // Örnek ruh hali verileri
-        setupSampleMoodHistory()
+        // If mood history is empty, set up sample data
+        if moodHistory.isEmpty {
+            setupSampleMoodHistory()
+        }
         
-        // Örnek hedefler
-        goals = sampleGoals
+        // If goals are empty, set up sample goals
+        if goals.isEmpty {
+            goals = sampleGoals
+        }
     }
+
+    // MARK: - Data Loading Methods
     
     private func loadUserData() {
         user = storageService.loadUser()
@@ -37,6 +52,20 @@ class WellnessViewModel: ObservableObject {
         messages = storageService.loadMessages()
     }
     
+    private func loadMoodHistory() {
+        moodHistory = storageService.loadMoodHistory()
+    }
+
+    private func loadGoals() {
+        goals = storageService.loadGoals()
+    }
+
+    private func loadPremiumStatus() {
+        isPremium = storageService.loadPremiumStatus()
+    }
+
+    // MARK: - User Management
+
     func createUser(name: String) {
         let newUser = User(name: name)
         user = newUser
@@ -51,6 +80,8 @@ class WellnessViewModel: ObservableObject {
         storageService.saveMessages(messages)
     }
     
+    // MARK: - Messaging
+
     func sendMessage(_ content: String) {
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         
@@ -71,6 +102,8 @@ class WellnessViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    // MARK: - Affirmations & Tips
+
     func refreshDailyAffirmation() {
         dailyAffirmation = aiService.getDailyAffirmation()
     }
@@ -80,7 +113,8 @@ class WellnessViewModel: ObservableObject {
         return wellnessTips.filter { $0.category == category }
     }
     
-    // Ruh hali kaydet
+    // MARK: - Mood Tracking
+
     func logMood(_ mood: MoodType) {
         let newEntry = MoodHistoryEntry(mood: mood, date: Date())
         
@@ -102,7 +136,8 @@ class WellnessViewModel: ObservableObject {
         // Geçmişi tarihe göre sırala
         moodHistory.sort(by: { $0.date > $1.date })
         
-        // Burada verileri saklama kodları eklenebilir
+        // Mood history'yi kaydet
+        storageService.saveMoodHistory(moodHistory)
     }
     
     // Örnek ruh hali verileri oluştur
@@ -117,41 +152,87 @@ class WellnessViewModel: ObservableObject {
             let moodType = MoodType.allCases[randomMoodIndex]
             return MoodHistoryEntry(mood: moodType, date: date)
         }
+
+        // Örnek verileri kaydet
+        storageService.saveMoodHistory(moodHistory)
     }
     
-    // Yeni hedef ekle
+    // MARK: - Goals Management
+
     func addGoal(_ goal: Goal) {
         goals.append(goal)
-        // Burada hedef saklama kodları eklenebilir
+        storageService.saveGoals(goals)
     }
     
-    // Hedefi güncelle
     func updateGoal(_ goal: Goal) {
         if let index = goals.firstIndex(where: { $0.id == goal.id }) {
             goals[index] = goal
-            // Burada hedef güncelleme kodları eklenebilir
+            storageService.saveGoals(goals)
         }
     }
     
-    // Hedefi sil
     func deleteGoal(_ goal: Goal) {
         goals.removeAll(where: { $0.id == goal.id })
-        // Burada hedef silme kodları eklenebilir
+        storageService.saveGoals(goals)
+    }
+
+    func toggleGoalCompletion(_ goal: Goal) {
+        if let index = goals.firstIndex(where: { $0.id == goal.id }) {
+            goals[index].isCompleted.toggle()
+            storageService.saveGoals(goals)
+        }
     }
     
-    // Premium abonelik durumunu güncelle
+    // MARK: - Premium Management
+
     func updatePremiumStatus(_ isPremium: Bool) {
         self.isPremium = isPremium
-        // Burada abonelik durumu saklama kodları eklenebilir
+        storageService.savePremiumStatus(isPremium)
     }
     
-    // Kullanıcı ayarlarını güncelle
-    func updateUserSettings(notifications: Bool, darkMode: Bool) {
-        // Burada kullanıcı ayarları güncelleme kodları eklenebilir
+    // MARK: - Settings Management
+
+    func updateUserSettings(notifications: Bool, darkMode: Bool, reminderTime: Date, languageCode: String) {
+        let settings = UserSettings(
+            notificationsEnabled: notifications,
+            darkModeEnabled: darkMode,
+            reminderTime: reminderTime,
+            languageCode: languageCode
+        )
+        storageService.saveSettings(settings)
     }
     
-    // Günlük hatırlatıcı ayarla
-    func setDailyReminder(time: Date, enabled: Bool) {
-        // Burada bildirim programlama kodları eklenebilir
+    func loadUserSettings() -> UserSettings {
+        return storageService.loadSettings() ?? UserSettings()
     }
 }
+
+// MARK: - Sample Data
+
+// Örnek hedefler
+let sampleGoals = [
+    Goal(title: "Her gün 10 dakika meditasyon", type: .meditation, targetDate: Date().addingTimeInterval(60*60*24*7)),
+    Goal(title: "Günde 2 litre su içmek", type: .water, targetDate: nil),
+    Goal(title: "Haftada 3 gün egzersiz yapmak", type: .exercise, targetDate: Date().addingTimeInterval(60*60*24*30)),
+    Goal(title: "Her gün günlük tutmak", type: .journal, targetDate: nil, isCompleted: true),
+    Goal(title: "Farkındalık pratikleri yapmak", type: .mindfulness, targetDate: nil, isCompleted: true)
+]
+
+// Örnek meditasyonlar
+let sampleMeditations = [
+    Meditation(title: "Sabah Odaklanma", description: "Güne enerjik başlamak için kısa bir meditasyon", duration: 5, type: .focus, imageName: "sunrise.fill"),
+    Meditation(title: "Derin Odak", description: "Çalışma öncesi konsantrasyonu artıran meditasyon", duration: 10, type: .focus, imageName: "lightbulb.fill"),
+    Meditation(title: "Zihin Temizleme", description: "Zihinsel yorgunluğu azaltan odaklanma meditasyonu", duration: 15, type: .focus, imageName: "cloud.fill"),
+
+    Meditation(title: "Huzurlu Uyku", description: "Rahat bir uyku için yatmadan önce yapılacak meditasyon", duration: 10, type: .sleep, imageName: "moon.zzz.fill"),
+    Meditation(title: "Gece Rahatlaması", description: "Uykuya dalmayı kolaylaştıran seslerle meditasyon", duration: 20, type: .sleep, imageName: "star.fill"),
+    Meditation(title: "Derin Uyku", description: "Kaliteli uyku için derin rahatlama teknikleri", duration: 30, type: .sleep, imageName: "bed.double.fill"),
+
+    Meditation(title: "Anksiyete Azaltma", description: "Kaygı durumlarında sakinleşmek için nefes teknikleri", duration: 8, type: .anxiety, imageName: "waveform.path"),
+    Meditation(title: "Endişeyi Bırakma", description: "Zihinsel gerginliği azaltan rehberli meditasyon", duration: 12, type: .anxiety, imageName: "arrow.up.heart.fill"),
+    Meditation(title: "Acil Sakinleşme", description: "Panik anlarında hızlı rahatlama için teknikler", duration: 5, type: .anxiety, imageName: "lungs.fill"),
+
+    Meditation(title: "İç Huzur", description: "İç huzuru bulmanıza yardımcı olan meditasyon", duration: 15, type: .calm, imageName: "leaf.fill"),
+    Meditation(title: "Doğa Sesleri", description: "Doğa sesleri eşliğinde sakinleştirici meditasyon", duration: 20, type: .calm, imageName: "tree.fill"),
+    Meditation(title: "Günü Tamamlama", description: "Gün sonunda rahatlama ve şükran meditasyonu", duration: 10, type: .calm, imageName: "sunset.fill")
+]

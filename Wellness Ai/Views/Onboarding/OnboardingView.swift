@@ -9,7 +9,7 @@ struct OnboardingView: View {
     @State private var stressLevel: Int = 3
     @State private var selectedChallenges: [String] = []
     @State private var isKeyboardVisible = false
-    
+
     // Onboarding sayfaları
     let pages = [
         OnboardingPage(
@@ -31,7 +31,7 @@ struct OnboardingView: View {
             backgroundColor: Color(hex: "43B692")
         )
     ]
-    
+
     // Wellness hedefleri
     let wellnessGoals = [
         "Stresimi azaltmak",
@@ -42,7 +42,7 @@ struct OnboardingView: View {
         "Odaklanmak",
         "Kaygımı azaltmak"
     ]
-    
+
     // Zorluklar
     let challenges = [
         "Stres",
@@ -54,7 +54,7 @@ struct OnboardingView: View {
         "İş/yaşam dengesi",
         "Enerji eksikliği"
     ]
-    
+
     var body: some View {
         ZStack {
             // Arkaplan
@@ -67,37 +67,14 @@ struct OnboardingView: View {
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
-            
+
             // Arkaplan dekoratif elemanlar
-            ZStack {
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 300, height: 300)
-                    .offset(x: -150, y: -200)
-                
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 200, height: 200)
-                    .offset(x: 170, y: -250)
-                
-                Circle()
-                    .fill(Color.white.opacity(0.1))
-                    .frame(width: 400, height: 400)
-                    .offset(x: 150, y: 400)
-            }
-            
+            backgroundDecorations
+
             VStack(spacing: 0) {
                 // Üst kısım - sayfa göstergesi
-                HStack {
-                    ForEach(0..<pages.count + 3, id: \.self) { index in
-                        Capsule()
-                            .fill(Color.white.opacity(currentPage == index ? 1.0 : 0.4))
-                            .frame(width: currentPage == index ? 20 : 7, height: 7)
-                            .animation(.easeInOut, value: currentPage)
-                    }
-                }
-                .padding(.top, 30)
-                
+                pageIndicator
+
                 if currentPage < pages.count {
                     // Tanıtım sayfaları
                     introPages
@@ -115,22 +92,61 @@ struct OnboardingView: View {
             .animation(.easeInOut, value: currentPage)
         }
         .onAppear {
-            // Klavye görünürlüğünü izle
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
-                isKeyboardVisible = true
-            }
-            
-            NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
-                isKeyboardVisible = false
-            }
+            setupKeyboardObservers()
         }
     }
-    
+
+    // MARK: - Keyboard Management
+
+    private func setupKeyboardObservers() {
+        // Klavye görünürlüğünü izle
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { _ in
+            isKeyboardVisible = true
+        }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+            isKeyboardVisible = false
+        }
+    }
+
+    // MARK: - View Components
+
+    private var backgroundDecorations: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 300, height: 300)
+                .offset(x: -150, y: -200)
+
+            Circle()
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 200, height: 200)
+                .offset(x: 170, y: -250)
+
+            Circle()
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 400, height: 400)
+                .offset(x: 150, y: 400)
+        }
+    }
+
+    private var pageIndicator: some View {
+        HStack {
+            ForEach(0..<pages.count + 3, id: \.self) { index in
+                Capsule()
+                    .fill(Color.white.opacity(currentPage == index ? 1.0 : 0.4))
+                    .frame(width: currentPage == index ? 20 : 7, height: 7)
+                    .animation(.easeInOut, value: currentPage)
+            }
+        }
+        .padding(.top, 30)
+    }
+
     // Tanıtım sayfaları
     private var introPages: some View {
         VStack(spacing: 20) {
             Spacer()
-            
+
             Image(systemName: pages[currentPage].imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -147,22 +163,22 @@ struct OnboardingView: View {
                         .stroke(Color.white.opacity(0.3), lineWidth: 3)
                         .frame(width: 220, height: 220)
                 )
-            
+
             Text(pages[currentPage].title)
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding(.top, 30)
-            
+
             Text(pages[currentPage].description)
                 .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
                 .padding(.top, 10)
-            
+
             Spacer()
-            
+
             // Devam et butonu
             Button(action: {
                 withAnimation {
@@ -173,7 +189,7 @@ struct OnboardingView: View {
                     Text("Devam Et")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(pages[currentPage].backgroundColor)
-                    
+
                     Image(systemName: "arrow.right")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(pages[currentPage].backgroundColor)
@@ -188,7 +204,7 @@ struct OnboardingView: View {
             .padding(.bottom, 30)
         }
     }
-    
+
     // Kullanıcı bilgileri sayfası
     private var userInfoPage: some View {
         VStack(spacing: 25) {
@@ -197,18 +213,18 @@ struct OnboardingView: View {
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .padding(.top, isKeyboardVisible ? 0 : 50)
-            
+
             if !isKeyboardVisible {
                 LottieView(name: "user_profile")
                     .frame(width: 150, height: 150)
             }
-            
+
             // İsim alanı
             VStack(alignment: .leading, spacing: 10) {
                 Text("İsminiz")
                     .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
-                
+
                 TextField("", text: $name)
                     .font(.system(size: 17, design: .rounded))
                     .padding()
@@ -220,20 +236,20 @@ struct OnboardingView: View {
                     )
             }
             .padding(.horizontal, 30)
-            
+
             // Yaş seçici
             VStack(alignment: .leading, spacing: 10) {
                 Text("Yaşınız")
                     .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
-                
+
                 HStack {
                     Slider(value: Binding(
                         get: { Double(age) },
                         set: { age = Int($0) }
                     ), in: 18...100, step: 1)
                     .accentColor(.white)
-                    
+
                     Text("\(age)")
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.white)
@@ -244,9 +260,9 @@ struct OnboardingView: View {
                 .cornerRadius(15)
             }
             .padding(.horizontal, 30)
-            
+
             Spacer()
-            
+
             // İleri butonu
             Button(action: {
                 withAnimation {
@@ -257,7 +273,7 @@ struct OnboardingView: View {
                     Text("İleri")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(pages.first?.backgroundColor ?? .blue)
-                    
+
                     Image(systemName: "arrow.right")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(pages.first?.backgroundColor ?? .blue)
@@ -274,7 +290,7 @@ struct OnboardingView: View {
             .opacity(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.6 : 1)
         }
     }
-    
+
     // Hedefler sayfası
     private var goalsPage: some View {
         VStack(spacing: 25) {
@@ -283,13 +299,13 @@ struct OnboardingView: View {
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .padding(.top, 50)
-            
+
             Text("WellnessAI ile neyi başarmak istiyorsunuz?")
                 .font(.system(size: 17))
                 .foregroundColor(.white.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 30)
-            
+
             // Hedefler listesi
             ScrollView {
                 VStack(spacing: 15) {
@@ -305,29 +321,29 @@ struct OnboardingView: View {
                 }
                 .padding(.horizontal, 30)
             }
-            
+
             // Stres seviyesi
             VStack(alignment: .leading, spacing: 10) {
                 Text("Günlük stres seviyeniz:")
                     .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
-                
+
                 HStack {
                     Text("Düşük")
                         .font(.system(size: 14))
                         .foregroundColor(.white.opacity(0.8))
-                    
+
                     Slider(value: Binding(
                         get: { Double(stressLevel) },
                         set: { stressLevel = Int($0) }
                     ), in: 1...5, step: 1)
                     .accentColor(.white)
-                    
+
                     Text("Yüksek")
                         .font(.system(size: 14))
                         .foregroundColor(.white.opacity(0.8))
                 }
-                
+
                 // Stres seviyesi görselleştirme
                 HStack {
                     ForEach(1...5, id: \.self) { level in
@@ -344,9 +360,9 @@ struct OnboardingView: View {
                 .padding(.top, 5)
             }
             .padding(.horizontal, 30)
-            
+
             Spacer()
-            
+
             // İleri butonu
             Button(action: {
                 withAnimation {
@@ -357,7 +373,7 @@ struct OnboardingView: View {
                     Text("İleri")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(pages.first?.backgroundColor ?? .blue)
-                    
+
                     Image(systemName: "arrow.right")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(pages.first?.backgroundColor ?? .blue)
@@ -374,7 +390,7 @@ struct OnboardingView: View {
             .opacity(selectedGoals.isEmpty ? 0.6 : 1)
         }
     }
-    
+
     // Zorluklar sayfası
     private var challengesPage: some View {
         VStack(spacing: 25) {
@@ -383,13 +399,13 @@ struct OnboardingView: View {
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .padding(.top, 50)
-            
+
             Text("Hangi alanlarda destek almak istiyorsunuz?")
                 .font(.system(size: 17))
                 .foregroundColor(.white.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 30)
-            
+
             // Zorluklar listesi
             ScrollView {
                 VStack(spacing: 15) {
@@ -405,9 +421,9 @@ struct OnboardingView: View {
                 }
                 .padding(.horizontal, 30)
             }
-            
+
             Spacer()
-            
+
             // Başla butonu
             Button(action: {
                 createUserAndStart()
@@ -429,7 +445,9 @@ struct OnboardingView: View {
             .opacity(selectedChallenges.isEmpty ? 0.6 : 1)
         }
     }
-    
+
+    // MARK: - Helper Methods
+
     // Hedef seçimi toggle
     private func toggleGoal(_ goal: String) {
         if selectedGoals.contains(goal) {
@@ -438,7 +456,7 @@ struct OnboardingView: View {
             selectedGoals.append(goal)
         }
     }
-    
+
     // Zorluk seçimi toggle
     private func toggleChallenge(_ challenge: String) {
         if selectedChallenges.contains(challenge) {
@@ -447,7 +465,7 @@ struct OnboardingView: View {
             selectedChallenges.append(challenge)
         }
     }
-    
+
     // Kullanıcı oluştur ve başla
     private func createUserAndStart() {
         // Kullanıcı bilgilerini kaydet
@@ -457,10 +475,10 @@ struct OnboardingView: View {
         Stres Seviyesi: \(stressLevel)/5
         Zorluklar: \(selectedChallenges.joined(separator: ", "))
         """
-        
+
         // Kullanıcıyı oluştur
         viewModel.createUser(name: name)
-        
+
         // Kullanıcı bilgilerini kaydet (gerçekte bu bilgileri daha yapılandırılmış bir şekilde kaydedebilirsiniz)
         let infoMessage = Message(
             content: "Kullanıcı Bilgileri:\n\(userInfo)",
@@ -470,82 +488,9 @@ struct OnboardingView: View {
     }
 }
 
-// Onboarding sayfa modeli
-struct OnboardingPage {
-    let title: String
-    let description: String
-    let imageName: String
-    let backgroundColor: Color
-}
-
-// Hedef/Zorluk seçim butonu
-struct GoalSelectionButton: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundColor(isSelected ? .white : .black)
-                
-                Spacer()
-                
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(isSelected ? .white : .gray)
-                    .font(.system(size: 20))
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(isSelected ? Color.blue.opacity(0.8) : Color.white)
-            )
-            .animation(.spring(), value: isSelected)
-        }
-    }
-}
-
-// Lottie animasyon görünümü (UIViewRepresentable)
-struct LottieView: View {
-    let name: String
-    
-    var body: some View {
-        Color.clear // Gerçek uygulamada burada Lottie animasyonu olacak
-            .overlay(
-                Image(systemName: "person.fill")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 60, height: 60)
-                    .foregroundColor(.white)
-            )
-    }
-}
-
-// HEX renk oluşturucu extension
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
-        }
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
+struct OnboardingView_Previews: PreviewProvider {
+    static var previews: some View {
+        OnboardingView()
+            .environmentObject(WellnessViewModel())
     }
 }

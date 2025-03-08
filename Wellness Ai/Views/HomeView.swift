@@ -218,14 +218,12 @@ struct HomeView: View {
     
     private var quickAccessCardsSection: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-            // BU BÖLÜMÜ DEĞİŞTİRİYORUM - EnvironmentObject'i doğru aktarmak için
             chatCardView
             meditationCardView
             inspirationCardView
         }
     }
     
-    // BU BÖLÜMÜ DEĞİŞTİRİYORUM - NavigationLink yerine doğrudan view döndürüyorum
     private var chatCardView: some View {
         NavigationLink(destination: ChatView().environmentObject(viewModel)) {
             QuickAccessCard(
@@ -264,7 +262,7 @@ struct HomeView: View {
             Text("Son 7 Gün - Ruh Hali Takibi")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
             
-            MoodHistoryChartSimplified(moodHistory: viewModel.moodHistory)
+            MoodHistoryChart(moodHistory: viewModel.moodHistory)
                 .frame(height: 200)
         }
         .padding(20)
@@ -276,142 +274,11 @@ struct HomeView: View {
     }
 }
 
-// MARK: - Helper Views
-
-struct QuickAccessCard: View {
-    let icon: String
-    let title: String
-    let description: String
-    let color: Color
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // İkon ve başlık
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 18))
-                    .foregroundColor(.white)
-                    .padding(10)
-                    .background(
-                        LinearGradient(
-                            gradient: Gradient(colors: [color, color.opacity(0.7)]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                
-                Text(title)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-            }
-            
-            Text(description)
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            // Devam et ikonu
-            HStack {
-                Spacer()
-                
-                Image(systemName: "chevron.right.circle.fill")
-                    .foregroundColor(color.opacity(0.7))
-                    .font(.system(size: 22))
-            }
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            HomeView()
+                .environmentObject(WellnessViewModel())
         }
-        .padding(15)
-        .frame(height: 135)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
-                .shadow(color: color.opacity(0.1), radius: 10, x: 0, y: 5)
-        )
-    }
-}
-
-// Further simplified MoodHistoryChart to avoid complex ForEach
-struct MoodHistoryChartSimplified: View {
-    let moodHistory: [MoodHistoryEntry]
-    
-    var body: some View {
-        GeometryReader { geometry in
-            HStack(alignment: .bottom, spacing: 0) {
-                if !moodHistory.isEmpty {
-                    // Instead of ForEach, use explicit views
-                    let columns = min(moodHistory.count, 7)
-                    let spacing: CGFloat = 10
-                    let availableWidth = geometry.size.width - (spacing * CGFloat(columns - 1))
-                    let columnWidth = availableWidth / CGFloat(columns)
-                    
-                    // Generate column views
-                    ForEach(0..<columns, id: \.self) { index in
-                        if index < moodHistory.count {
-                            let entry = moodHistory[index]
-                            MoodColumnView(
-                                entry: entry,
-                                columnWidth: columnWidth
-                            )
-                            if index < columns - 1 {
-                                Spacer().frame(width: spacing)
-                            }
-                        }
-                    }
-                } else {
-                    // Empty state
-                    Text("Henüz ruh hali verisi yok")
-                        .font(.system(size: 16))
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-            }
-            .padding(.horizontal)
-        }
-    }
-}
-
-struct MoodColumnView: View {
-    let entry: MoodHistoryEntry
-    let columnWidth: CGFloat
-    
-    var body: some View {
-        VStack {
-            Text(entry.mood.emoji)
-                .font(.system(size: 20))
-                .shadow(color: .gray.opacity(0.3), radius: 1, x: 1, y: 1)
-            
-            RoundedRectangle(cornerRadius: 10)
-                .fill(moodGradient(for: entry.mood))
-                .frame(width: columnWidth, height: CGFloat(entry.mood.value) * 25)
-            
-            Text(formatDate(entry.date))
-                .font(.system(size: 10))
-                .foregroundColor(.secondary)
-        }
-    }
-    
-    private func moodGradient(for mood: MoodType) -> LinearGradient {
-        let color = moodColor(mood)
-        return LinearGradient(
-            gradient: Gradient(colors: [color.opacity(0.7), color]),
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-    
-    private func moodColor(_ mood: MoodType) -> Color {
-        switch mood {
-        case .fantastic: return .green
-        case .good: return .blue
-        case .neutral: return .yellow
-        case .bad: return .orange
-        case .awful: return .red
-        }
-    }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM"
-        return formatter.string(from: date)
     }
 }
