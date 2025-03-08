@@ -83,13 +83,12 @@ struct HomeView: View {
     }
     
     private var moodButtonsRow: some View {
-        // Breaking down the complex ForEach into a simpler HStack
         HStack(spacing: 20) {
-            moodButton(for: .fantastic)
-            moodButton(for: .good)
-            moodButton(for: .neutral)
-            moodButton(for: .bad)
-            moodButton(for: .awful)
+            moodButton(for: MoodType.fantastic)
+            moodButton(for: MoodType.good)
+            moodButton(for: MoodType.neutral)
+            moodButton(for: MoodType.bad)
+            moodButton(for: MoodType.awful)
         }
     }
     
@@ -101,7 +100,6 @@ struct HomeView: View {
             }
         }) {
             VStack {
-                // Extract the emoji display to simplify the button content
                 moodEmojiView(for: mood)
                 
                 Text(mood.rawValue)
@@ -123,7 +121,6 @@ struct HomeView: View {
             )
     }
     
-    // Fix for the type mismatch - always return a LinearGradient
     private func moodCircleGradient(for mood: MoodType) -> LinearGradient {
         if currentMood == mood {
             return LinearGradient(
