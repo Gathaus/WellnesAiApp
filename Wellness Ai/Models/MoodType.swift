@@ -2,11 +2,11 @@ import Foundation
 import SwiftUI
 
 enum MoodType: String, CaseIterable, Codable {
-    case fantastic = "Harika"
-    case good = "İyi"
-    case neutral = "Normal"
-    case bad = "Kötü"
-    case awful = "Berbat"
+    case fantastic = "Fantastic"
+    case good = "Good"
+    case neutral = "Neutral"
+    case bad = "Bad"
+    case awful = "Awful"
 
     var emoji: String {
         switch self {

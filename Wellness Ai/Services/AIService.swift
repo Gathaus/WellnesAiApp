@@ -4,156 +4,156 @@ import SwiftUI
 
 class AIService: AIServiceProtocol {
     func generateResponse(to message: String) -> AnyPublisher<String, Never> {
-        // Basit yapay yanıtlar (gerçek uygulamada bir API ile değiştirilmelidir)
+        // Simple AI responses (should be replaced with a real API in production)
         let responses = [
-            "Bugün kendini nasıl hissediyorsun?",
-            "Seni dinliyorum. Paylaşmak istediğin başka şeyler var mı?",
-            "Günün nasıl geçiyor?",
-            "Kendine biraz zaman ayırmak önemlidir. Bugün kendine nasıl iyi davrandın?",
-            "Her zorluk, kişisel gelişim için bir fırsattır.",
-            "Küçük ilerlemeler bile kutlanmaya değer. Kendini takdir etmeyi unutma.",
-            "Derin bir nefes al ve anın tadını çıkar.",
-            "Kendini iyi hissettiğin bir şeyi hatırla ve o duyguya odaklan.",
-            "Sağlıklı sınırlar belirlemek öz bakımın önemli bir parçasıdır.",
-            "Yeterince uyku aldığından emin ol, bu zihinsel sağlığın için çok önemli.",
-            "Şu anda neye minnettar hissediyorsun?",
-            "Bugün kendini nasıl ödüllendirebilirsin?",
-            "Kendini yargılamadan gözlemlemek, farkındalığın ilk adımıdır.",
-            "İçinde bulunduğun anı tam olarak yaşamaya çalış.",
-            "Bazen sadece nefes almanın bile meditasyon olduğunu hatırla."
+            "How are you feeling today?",
+            "I'm listening. Is there anything else you'd like to share?",
+            "How is your day going?",
+            "Taking time for yourself is important. How have you been kind to yourself today?",
+            "Every challenge is an opportunity for personal growth.",
+            "Even small progress is worth celebrating. Remember to appreciate yourself.",
+            "Take a deep breath and enjoy the moment.",
+            "Think of something that makes you feel good and focus on that feeling.",
+            "Setting healthy boundaries is an important part of self-care.",
+            "Make sure you're getting enough sleep, it's very important for your mental health.",
+            "What are you grateful for right now?",
+            "How can you reward yourself today?",
+            "Observing yourself without judgment is the first step of mindfulness.",
+            "Try to fully experience the present moment.",
+            "Remember that sometimes just breathing can be meditation."
         ]
         
-        return Just(responses.randomElement() ?? "Seni anlıyorum.")
+        return Just(responses.randomElement() ?? "I understand.")
             .delay(for: .seconds(1), scheduler: RunLoop.main)
             .eraseToAnyPublisher()
     }
     
     func getWellnessTips() -> [WellnessTip] {
         return [
-            // Motivasyon ipuçları
-            WellnessTip(content: "Her gün bir hedefe odaklanın. Küçük adımlar büyük sonuçlara götürür.", category: .motivation),
-            WellnessTip(content: "Hayallerinizi gerçekleştirmek için bugün küçük bir adım atın.", category: .motivation),
-            WellnessTip(content: "Başarısızlıklar öğrenme fırsatıdır, onları kucaklayın.", category: .motivation),
-            WellnessTip(content: "Konfor alanınızın dışına çıkmak, büyümenin anahtarıdır.", category: .motivation),
-            WellnessTip(content: "Kendinizi diğerleriyle değil, sadece dünkü kendinizle karşılaştırın.", category: .motivation),
-            WellnessTip(content: "Her başarısızlık, başarıya giden yolda bir adımdır.", category: .motivation),
-            WellnessTip(content: "Tutkulu olduğunuz bir şey için her gün en az 15 dakika ayırın.", category: .motivation),
+            // Motivation tips
+            WellnessTip(content: "Focus on one goal every day. Small steps lead to big results.", category: .motivation),
+            WellnessTip(content: "Take a small step today toward realizing your dreams.", category: .motivation),
+            WellnessTip(content: "Failures are learning opportunities, embrace them.", category: .motivation),
+            WellnessTip(content: "Stepping outside your comfort zone is the key to growth.", category: .motivation),
+            WellnessTip(content: "Compare yourself only to your past self, not to others.", category: .motivation),
+            WellnessTip(content: "Every failure is a step on the path to success.", category: .motivation),
+            WellnessTip(content: "Spend at least 15 minutes every day on something you're passionate about.", category: .motivation),
 
-            // Farkındalık ipuçları
-            WellnessTip(content: "Günde en az 10 dakika meditasyon yapmayı deneyin.", category: .mindfulness),
-            WellnessTip(content: "Zorlandığınızda, nefesinize odaklanın ve birkaç derin nefes alın.", category: .mindfulness),
-            WellnessTip(content: "Günlük tutmak, düşüncelerinizi düzenlemenize yardımcı olabilir.", category: .mindfulness),
-            WellnessTip(content: "Yemek yerken tüm duyularınızla deneyimlemeye çalışın - yavaşça ve farkında olarak yiyin.", category: .mindfulness),
-            WellnessTip(content: "Günde bir kez 'şu anda ne hissediyorum?' diye kendinize sorun.", category: .mindfulness),
-            WellnessTip(content: "Düşüncelerinizi yargılamadan gözlemlemeyi öğrenin, sadece fark edin ve bırakın.", category: .mindfulness),
-            WellnessTip(content: "Duyularınızla şu anı deneyimleyin: 5 şey görün, 4 şey dokunun, 3 şey duyun, 2 şey koklayın, 1 şey tadın.", category: .mindfulness),
+            // Mindfulness tips
+            WellnessTip(content: "Try to meditate for at least 10 minutes every day.", category: .mindfulness),
+            WellnessTip(content: "When you're struggling, focus on your breath and take a few deep breaths.", category: .mindfulness),
+            WellnessTip(content: "Keeping a journal can help organize your thoughts.", category: .mindfulness),
+            WellnessTip(content: "Try to experience meals with all your senses - eat slowly and mindfully.", category: .mindfulness),
+            WellnessTip(content: "Once a day, ask yourself 'what am I feeling right now?'", category: .mindfulness),
+            WellnessTip(content: "Learn to observe your thoughts without judgment, just notice and let go.", category: .mindfulness),
+            WellnessTip(content: "Experience the present moment with your senses: see 5 things, touch 4 things, hear 3 things, smell 2 things, taste 1 thing.", category: .mindfulness),
 
-            // Öz bakım ipuçları
-            WellnessTip(content: "Kendinize karşı nazik olun, mükemmellik aramak yerine ilerlemeye odaklanın.", category: .selfCare),
-            WellnessTip(content: "Her gün en az 30 dakika doğada zaman geçirin.", category: .selfCare),
-            WellnessTip(content: "İyi uyku, iyi ruh hali için temeldir. Düzenli bir uyku programı oluşturun.", category: .selfCare),
-            WellnessTip(content: "Günde en az 8 bardak su için, hidrasyon hem fiziksel hem de zihinsel sağlık için önemlidir.", category: .selfCare),
-            WellnessTip(content: "Haftada en az iki kez kendinize şımartma zamanı ayırın - bir banyo, kitap okuma veya hobiniz.", category: .selfCare),
-            WellnessTip(content: "Her gün 30 dakika hareket edin - yürüyüş, yoga veya dans - ne sizi mutlu ediyorsa.", category: .selfCare),
-            WellnessTip(content: "'Hayır' demeyi öğrenin. Sınırlar belirlemek, öz bakımın önemli bir parçasıdır.", category: .selfCare),
+            // Self-care tips
+            WellnessTip(content: "Be kind to yourself, focus on progress rather than seeking perfection.", category: .selfCare),
+            WellnessTip(content: "Spend at least 30 minutes in nature every day.", category: .selfCare),
+            WellnessTip(content: "Good sleep is foundational for good mood. Create a regular sleep schedule.", category: .selfCare),
+            WellnessTip(content: "Drink at least 8 glasses of water a day, hydration is important for both physical and mental health.", category: .selfCare),
+            WellnessTip(content: "Take time to pamper yourself at least twice a week - a bath, reading a book, or your hobby.", category: .selfCare),
+            WellnessTip(content: "Move for 30 minutes every day - walk, yoga, or dance - whatever makes you happy.", category: .selfCare),
+            WellnessTip(content: "Learn to say 'no'. Setting boundaries is an important part of self-care.", category: .selfCare),
 
-            // Pozitif düşünce ipuçları
-            WellnessTip(content: "Her gün yaptığınız üç şey için minnettar olun.", category: .positivity),
-            WellnessTip(content: "Sizi mutlu eden küçük anların tadını çıkarın.", category: .positivity),
-            WellnessTip(content: "Olumsuz düşünceleri fark edin ve onları olumlu ifadelerle değiştirin.", category: .positivity),
-            WellnessTip(content: "Çevrenizdeki güzellikleri fark etmeye çalışın - bir çiçek, gökyüzü veya bir gülümseme.", category: .positivity),
-            WellnessTip(content: "Her gece yatmadan önce günün üç güzel anını hatırlayın.", category: .positivity),
-            WellnessTip(content: "Pozitif insanlarla vakit geçirin, enerji bulaşıcıdır.", category: .positivity),
-            WellnessTip(content: "Küçük başarılarınızı kutlamayı öğrenin, bu özgüveninizi artırır.", category: .positivity)
+            // Positive thinking tips
+            WellnessTip(content: "Be grateful for three things you do every day.", category: .positivity),
+            WellnessTip(content: "Enjoy the little moments that make you happy.", category: .positivity),
+            WellnessTip(content: "Notice negative thoughts and replace them with positive statements.", category: .positivity),
+            WellnessTip(content: "Try to notice the beauty around you - a flower, the sky, or a smile.", category: .positivity),
+            WellnessTip(content: "Every night before bed, remember three beautiful moments from the day.", category: .positivity),
+            WellnessTip(content: "Spend time with positive people, energy is contagious.", category: .positivity),
+            WellnessTip(content: "Learn to celebrate your small successes, it builds confidence.", category: .positivity)
         ]
     }
     
     func getDailyAffirmation() -> String {
         let affirmations = [
-            "Ben değerliyim ve sevilmeyi hak ediyorum.",
-            "Her gün, her şekilde daha iyi ve daha güçlü oluyorum.",
-            "Zorlukları aşabilecek güce sahibim.",
-            "Hayatımı olumlu bir şekilde değiştirebilirim.",
-            "Ben yeterince iyiyim ve olduğum gibi kendimi kabul ediyorum.",
-            "Bugün ve her gün için minnettar hissediyorum.",
-            "Kendi mutluluğumu yaratma gücüne sahibim.",
-            "Pozitif enerji yayıyor ve pozitif enerji çekiyorum.",
-            "Ben barış ve huzur içindeyim.",
-            "Her geçen gün kendimi daha çok seviyorum.",
-            "Ben kendi hayatımın mimarıyım ve olumlu seçimler yapıyorum.",
-            "Şu anda tamamen buradayım ve anın tadını çıkarıyorum.",
-            "Benim değerim, başarılarımla değil, kim olduğumla belirlenir.",
-            "Ben kendime şefkat ve anlayışla yaklaşıyorum.",
-            "Her zorluk beni güçlendirir ve büyütür.",
-            "Her nefesle daha da sakinleşiyor ve dengeleniyorum.",
-            "Bedenime saygı duyuyor ve iyi bakıyorum.",
-            "Kendi ihtiyaçlarımı karşılamak bencillik değil, öz bakımdır.",
-            "Hayatım güzellikler ve fırsatlarla dolu.",
-            "Ben her gün, her an seçim yapabilme özgürlüğüne sahibim.",
-            "Kabul edemeyeceğim şeyleri değiştirme cesaretine, değiştiremeyeceğim şeyleri kabul etme huzuruna ve ikisini birbirinden ayırt etme bilgeliğine sahibim."
+            "I am valuable and deserve to be loved.",
+            "Every day, in every way, I am getting better and stronger.",
+            "I have the power to overcome challenges.",
+            "I can change my life in a positive way.",
+            "I am good enough and I accept myself as I am.",
+            "I feel grateful for today and every day.",
+            "I have the power to create my own happiness.",
+            "I radiate positive energy and attract positive energy.",
+            "I am at peace.",
+            "I love myself more each day.",
+            "I am the architect of my life and make positive choices.",
+            "I am fully present here and now, enjoying the moment.",
+            "My worth is determined by who I am, not by my achievements.",
+            "I approach myself with compassion and understanding.",
+            "Every challenge strengthens and grows me.",
+            "With each breath, I become calmer and more balanced.",
+            "I respect my body and take good care of it.",
+            "Meeting my own needs is not selfish, it's self-care.",
+            "My life is full of beauty and opportunities.",
+            "I have the freedom to choose at every moment, every day.",
+            "I have the courage to change what I cannot accept, the serenity to accept what I cannot change, and the wisdom to know the difference."
         ]
         
-        return affirmations.randomElement() ?? "Bugün harika bir gün olacak!"
+        return affirmations.randomElement() ?? "Today will be a great day!"
     }
 
     func getPersonalizedRecommendation(based on: MoodType) -> String {
         switch on {
         case .fantastic:
             let recommendations = [
-                "Harika hissettiğiniz bu duyguyu not edin. Ne yaptınız, kimlerle birlikte oldunuz? Bu anları çoğaltmak için kullanabilirsiniz.",
-                "Pozitif enerjinizi yaratıcı bir aktiviteye yönlendirebilirsiniz. Belki o ertelediğiniz projeye başlamak için mükemmel bir zaman!",
-                "Bu harika enerjiyi sevdiklerinizle paylaşın, belki birisine beklenmedik bir iyilik yapabilirsiniz."
+                "Note this great feeling. What did you do, who were you with? You can use this to create more of these moments.",
+                "You can channel your positive energy into a creative activity. Maybe it's the perfect time to start that project you've been postponing!",
+                "Share this great energy with your loved ones, maybe you can do an unexpected kindness for someone."
             ]
-            return recommendations.randomElement() ?? "Bu enerjik halinizi değerlendirin!"
+            return recommendations.randomElement() ?? "Make the most of this energetic state!"
 
         case .good:
             let recommendations = [
-                "İyi hissettiğiniz bu günde, kendinize küçük bir ödül verin veya sevdiğiniz bir aktivite yapın.",
-                "Olumlu duygularınızı pekiştirmek için minnettarlık günlüğü tutmayı deneyebilirsiniz.",
-                "Bugün biraz dışarı çıkıp temiz hava almak iyi hissetmenize katkıda bulunabilir."
+                "On this good day, give yourself a small reward or do an activity you enjoy.",
+                "You could try keeping a gratitude journal to reinforce your positive emotions.",
+                "Getting some fresh air today could contribute to your good feeling."
             ]
-            return recommendations.randomElement() ?? "İyi hissettiğiniz bu anın tadını çıkarın."
+            return recommendations.randomElement() ?? "Enjoy this moment of feeling good."
 
         case .neutral:
             let recommendations = [
-                "Kısa bir yürüyüş veya nefes egzersizi ruh halinizi yükseltebilir.",
-                "Sevdiğiniz bir müzik veya podcast dinlemek enerjinizi artırabilir.",
-                "Bugün kendinize biraz ekstra özen göstermeyi deneyin - sevdiğiniz bir içecek veya küçük bir mola."
+                "A short walk or breathing exercise could lift your mood.",
+                "Listening to music or a podcast you enjoy could boost your energy.",
+                "Try giving yourself a little extra care today - a favorite drink or a small break."
             ]
-            return recommendations.randomElement() ?? "Kendinize biraz zaman ayırın."
+            return recommendations.randomElement() ?? "Take some time for yourself."
 
         case .bad:
             let recommendations = [
-                "Kötü hissetmek normaldir. Duygularınızı bastırmak yerine, belki onları yazarak ifade edebilirsiniz.",
-                "Kısa bir meditasyon veya derin nefes egzersizi zihninizi sakinleştirmeye yardımcı olabilir.",
-                "Sevdiğiniz biriyle konuşmak veya bir arkadaşınızla mesajlaşmak sizi daha iyi hissettirebilir."
+                "It's normal to feel bad. Instead of suppressing your emotions, maybe you could express them by writing.",
+                "A short meditation or deep breathing exercise could help calm your mind.",
+                "Talking to someone you love or messaging a friend could make you feel better."
             ]
-            return recommendations.randomElement() ?? "Kendinize nazik davranın, bu duygu da geçecek."
+            return recommendations.randomElement() ?? "Be kind to yourself, this feeling will pass."
 
         case .awful:
             let recommendations = [
-                "Çok kötü hissettiğinizde kendine şefkat göstermek önemlidir. Bugün sadece temel ihtiyaçlarınıza odaklanın.",
-                "Duygularınızı güvenilir biriyle paylaşmak veya profesyonel destek almak düşünebileceğiniz bir seçenektir.",
-                "Derin nefes alma egzersizleri ve kısa mindfulness pratikleri anlık rahatlama sağlayabilir."
+                "When you feel awful, it's important to show yourself compassion. Today, focus just on your basic needs.",
+                "Sharing your feelings with someone you trust or seeking professional support is an option to consider.",
+                "Deep breathing exercises and short mindfulness practices can provide immediate relief."
             ]
-            return recommendations.randomElement() ?? "Bu zor zamanda kendinize nazik olun ve gerekirse destek alın."
+            return recommendations.randomElement() ?? "Be kind to yourself during this difficult time and seek support if needed."
         }
     }
 
     func getGoalSuggestions() -> [String] {
         return [
-            "Her gün 10 dakika meditasyon yapmak",
-            "Haftada en az 3 gün 30 dakika egzersiz yapmak",
-            "Günde 2 litre su içmek",
-            "Her gece uyumadan önce şükran günlüğü tutmak",
-            "Her gün en az 15 dakika kitap okumak",
-            "Haftada bir gün dijital detoks yapmak",
-            "Her sabah güne olumlu bir afirmasyonla başlamak",
-            "Düzenli uyku saatleri belirlemek ve uymak",
-            "Haftada en az 2 kez doğada zaman geçirmek",
-            "Her gün en az bir öğünü farkındalıkla yemek",
-            "Haftalık bütçe planı yapıp izlemek",
-            "Haftada bir kez kendime özel zaman ayırmak"
+            "Meditate for 10 minutes every day",
+            "Exercise for 30 minutes at least 3 days a week",
+            "Drink 2 liters of water daily",
+            "Keep a gratitude journal before bed every night",
+            "Read a book for at least 15 minutes every day",
+            "Have a digital detox day once a week",
+            "Start each day with a positive affirmation",
+            "Set regular sleep hours and stick to them",
+            "Spend time in nature at least twice a week",
+            "Eat at least one meal mindfully every day",
+            "Make and follow a weekly budget",
+            "Set aside special time for myself once a week"
         ]
     }
 }

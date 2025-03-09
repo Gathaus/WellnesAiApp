@@ -1,10 +1,10 @@
 import Foundation
 
 enum TipCategory: String, Codable, CaseIterable, Identifiable {
-    case motivation = "Motivasyon"
-    case mindfulness = "Farkındalık"
-    case selfCare = "Öz Bakım"
-    case positivity = "Pozitif Düşünce"
+    case motivation = "Motivation"
+    case mindfulness = "Mindfulness"
+    case selfCare = "Self Care"
+    case positivity = "Positive Thinking"
     
     var id: String { rawValue }
 }

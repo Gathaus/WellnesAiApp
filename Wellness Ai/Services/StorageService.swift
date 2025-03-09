@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 class StorageService {
-    // Anahtar tanımları
+    // Key definitions
     private enum StorageKeys {
         static let userDefaultsKey = "wellnessUser"
         static let messagesKey = "wellnessMessages"
@@ -10,6 +10,8 @@ class StorageService {
         static let goalsKey = "wellnessGoals"
         static let settingsKey = "wellnessSettings"
         static let premiumStatusKey = "wellnessPremiumStatus"
+        static let trialEndDateKey = "wellnessTrialEndDate"
+        static let favoritedInspirationsKey = "wellnessFavoritedInspirations"
     }
     
     // MARK: - User Operations
@@ -84,6 +86,32 @@ class StorageService {
     
     func loadPremiumStatus() -> Bool {
         return UserDefaults.standard.bool(forKey: StorageKeys.premiumStatusKey)
+    }
+    
+    // MARK: - Trial Operations
+    
+    func saveTrialEndDate(_ date: Date) {
+        UserDefaults.standard.set(date, forKey: StorageKeys.trialEndDateKey)
+    }
+    
+    func loadTrialEndDate() -> Date? {
+        return UserDefaults.standard.object(forKey: StorageKeys.trialEndDateKey) as? Date
+    }
+    
+    // MARK: - Favorited Inspirations Operations
+    
+    func saveFavoritedInspirations(_ inspirations: [String]) {
+        if let encoded = try? JSONEncoder().encode(inspirations) {
+            UserDefaults.standard.set(encoded, forKey: StorageKeys.favoritedInspirationsKey)
+        }
+    }
+    
+    func loadFavoritedInspirations() -> [String] {
+        if let data = UserDefaults.standard.data(forKey: StorageKeys.favoritedInspirationsKey),
+           let inspirations = try? JSONDecoder().decode([String].self, from: data) {
+            return inspirations
+        }
+        return []
     }
     
     // MARK: - Settings Operations
