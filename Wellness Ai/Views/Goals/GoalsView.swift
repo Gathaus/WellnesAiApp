@@ -6,9 +6,9 @@ struct GoalsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Başlık ve yeni hedef butonu
+            // Title and new goal button
             HStack {
-                Text("Hedeflerim")
+                Text("My Goals")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
 
                 Spacer()
@@ -23,14 +23,14 @@ struct GoalsView: View {
             }
             .padding()
 
-            // Tamamlanmayan hedefler
+            // Incomplete goals
             VStack(alignment: .leading, spacing: 15) {
-                Text("Devam Edenler")
+                Text("In Progress")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
                     .padding(.horizontal)
 
                 if incompleteGoals.isEmpty {
-                    EmptyGoalView(message: "Henüz devam eden bir hedefin yok.\nYeni bir hedef eklemek için + butonuna tıkla.")
+                    EmptyGoalView(message: "You don't have any goals in progress.\nTap the + button to add a new goal.")
                 } else {
                     ForEach(incompleteGoals) { goal in
                         GoalCard(goal: goal, onToggle: toggleGoal)
@@ -39,14 +39,14 @@ struct GoalsView: View {
             }
             .padding(.bottom, 20)
 
-            // Tamamlanan hedefler
+            // Completed goals
             VStack(alignment: .leading, spacing: 15) {
-                Text("Tamamlananlar")
+                Text("Completed")
                     .font(.system(size: 18, weight: .bold, design: .rounded))
                     .padding(.horizontal)
 
                 if completedGoals.isEmpty {
-                    EmptyGoalView(message: "Henüz tamamlanmış bir hedefin yok.\nHedeflerini gerçekleştirdikçe burada görünecekler.")
+                    EmptyGoalView(message: "You haven't completed any goals yet.\nThey will appear here when you complete them.")
                 } else {
                     ForEach(completedGoals) { goal in
                         GoalCard(goal: goal, onToggle: toggleGoal)
@@ -64,17 +64,17 @@ struct GoalsView: View {
         }
     }
 
-    // Tamamlanmamış hedefler
+    // Incomplete goals
     var incompleteGoals: [Goal] {
         viewModel.goals.filter { !$0.isCompleted }
     }
 
-    // Tamamlanmış hedefler
+    // Completed goals
     var completedGoals: [Goal] {
         viewModel.goals.filter { $0.isCompleted }
     }
 
-    // Hedef durumunu değiştir
+    // Toggle goal status
     func toggleGoal(_ goal: Goal) {
         viewModel.toggleGoalCompletion(goal)
     }

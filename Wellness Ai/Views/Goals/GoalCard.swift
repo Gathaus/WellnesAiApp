@@ -6,7 +6,7 @@ struct GoalCard: View {
 
     var body: some View {
         HStack(spacing: 15) {
-            // Tamamlandı göstergesi
+            // Completion indicator
             Button(action: {
                 onToggle(goal)
             }) {
@@ -23,7 +23,7 @@ struct GoalCard: View {
                 }
             }
 
-            // İkon
+            // Icon
             ZStack {
                 Circle()
                     .fill(goal.type.color.opacity(0.2))
@@ -34,7 +34,7 @@ struct GoalCard: View {
                     .foregroundColor(goal.type.color)
             }
 
-            // İçerik
+            // Content
             VStack(alignment: .leading, spacing: 3) {
                 Text(goal.title)
                     .font(.system(size: 16, weight: .medium, design: .rounded))
@@ -42,7 +42,7 @@ struct GoalCard: View {
                     .foregroundColor(goal.isCompleted ? .secondary : .primary)
 
                 if let targetDate = goal.targetDate {
-                    Text("Hedef: \(formatDate(targetDate))")
+                    Text("Target: \(formatDate(targetDate))")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                 }
@@ -62,7 +62,7 @@ struct GoalCard: View {
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd MMMM yyyy"
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = Locale(identifier: "en_US") // Set locale to English
         return formatter.string(from: date)
     }
 }
@@ -71,7 +71,7 @@ struct GoalCard_Previews: PreviewProvider {
     static var previews: some View {
         GoalCard(
             goal: Goal(
-                title: "Her gün 10 dakika meditasyon",
+                title: "Meditate for 10 minutes daily",
                 type: .meditation,
                 targetDate: Date().addingTimeInterval(60*60*24*7)
             ),

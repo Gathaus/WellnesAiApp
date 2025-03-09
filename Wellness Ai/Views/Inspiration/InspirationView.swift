@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct InspirationView: View {
     @EnvironmentObject var viewModel: WellnessViewModel
@@ -10,6 +11,8 @@ struct InspirationView: View {
     @State private var hasSwipedOnce = false
     @State private var showShareSheet = false
     @State private var showFavoritesSheet = false
+    @State private var isLoading = true
+    @State private var cancellables = Set<AnyCancellable>()
 
     // Different gradient configurations for variety
     let gradients: [LinearGradient] = [
@@ -50,64 +53,76 @@ struct InspirationView: View {
             // Decorative elements
             decorativeElements
 
-            // Main content
-            VStack(spacing: 40) {
-                // Header
-                headerView
+            if isLoading {
+                VStack {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                    
+                    Text("Loading inspirations...")
+                        .foregroundColor(.white)
+                        .padding(.top, 20)
+                }
+            } else {
+                // Main content
+                VStack(spacing: 40) {
+                    // Header
+                    headerView
 
-                Spacer()
+                    Spacer()
 
-                // Main affirmation view (no card)
-                affirmationView
-                    .offset(y: dragOffset)
-                    .opacity(opacity)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                if value.translation.height < 0 {
-                                    // Only allow dragging upward
-                                    dragOffset = value.translation.height / 3
-                                    opacity = 1.0 + (dragOffset / 500)
-                                }
-                            }
-                            .onEnded { value in
-                                if value.translation.height < -100 {
-                                    // Threshold to show next affirmation
-                                    withAnimation(.spring()) {
-                                        showNextAffirmation()
-                                        hasSwipedOnce = true
+                    // Main affirmation view (no card)
+                    affirmationView
+                        .offset(y: dragOffset)
+                        .opacity(opacity)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    if value.translation.height < 0 {
+                                        // Only allow dragging upward
+                                        dragOffset = value.translation.height / 3
+                                        opacity = 1.0 + (dragOffset / 500)
                                     }
                                 }
-                                withAnimation(.spring()) {
-                                    dragOffset = 0
-                                    opacity = 1.0
+                                .onEnded { value in
+                                    if value.translation.height < -100 {
+                                        // Threshold to show next affirmation
+                                        withAnimation(.spring()) {
+                                            showNextAffirmation()
+                                            hasSwipedOnce = true
+                                        }
+                                    }
+                                    withAnimation(.spring()) {
+                                        dragOffset = 0
+                                        opacity = 1.0
+                                    }
                                 }
-                            }
-                    )
+                        )
 
-                Spacer()
+                    Spacer()
 
-                // Instructions (only shown before first swipe)
-                if !hasSwipedOnce {
-                    Text("Swipe up 👆 for new inspiration")
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 15)
-                        .background(Color.white.opacity(0.2))
-                        .cornerRadius(20)
-                        .padding(.bottom, 30)
+                    // Instructions (only shown before first swipe)
+                    if !hasSwipedOnce {
+                        Text("Swipe up 👆 for new inspiration")
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 15)
+                            .background(Color.white.opacity(0.2))
+                            .cornerRadius(20)
+                            .padding(.bottom, 30)
+                    }
+
+                    // Action buttons
+                    actionButtonsView
+                        .padding(.bottom, 80) // Extra padding for tab bar
                 }
-
-                // Action buttons
-                actionButtonsView
-                    .padding(.bottom, 80) // Extra padding for tab bar
+                .padding()
             }
-            .padding()
         }
         .onAppear {
-            // Initialize affirmations
-            loadAffirmations()
+            // Fetch affirmations from backend
+            fetchAffirmations()
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [currentAffirmation])
@@ -157,7 +172,7 @@ struct InspirationView: View {
             Button(action: {
                 showFavoritesSheet = true
             }) {
-                Image(systemName: "heart.fill")
+                Image(systemName: "bookmark.fill")
                     .font(.system(size: 22))
                     .foregroundColor(.white)
                     .padding(10)
@@ -249,8 +264,52 @@ struct InspirationView: View {
         }
     }
 
-    private func loadAffirmations() {
-        // Load all available affirmations
+    private func fetchAffirmations() {
+        isLoading = true
+        
+        // First try to load form backend API
+        guard let url = URL(string: "http://localhost:8080/api/affirmations") else {
+            // Fallback to local data if URL is invalid
+            loadLocalAffirmations()
+            return
+        }
+        
+        URLSession.shared.dataTaskPublisher(for: url)
+            .map(\.data)
+            .decode(type: [AffirmationResponse].self, decoder: JSONDecoder())
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("Error fetching affirmations: \(error)")
+                    loadLocalAffirmations()
+                }
+                isLoading = false
+            }, receiveValue: { response in
+                self.affirmations = response.map { $0.content }
+                if !self.affirmations.isEmpty {
+                    // Add the daily affirmation at the beginning if available
+                    if !viewModel.dailyAffirmation.isEmpty && !self.affirmations.contains(viewModel.dailyAffirmation) {
+                        self.affirmations.insert(viewModel.dailyAffirmation, at: 0)
+                    }
+                    
+                    // Shuffle the rest for variety (except the first one)
+                    if self.affirmations.count > 1 {
+                        let firstAffirmation = self.affirmations.first!
+                        self.affirmations.removeFirst()
+                        self.affirmations.shuffle()
+                        self.affirmations.insert(firstAffirmation, at: 0)
+                    }
+                }
+                isLoading = false
+            })
+            .store(in: &cancellables)
+    }
+    
+    private func loadLocalAffirmations() {
+        // Fallback to local data
         affirmations = [
             "I am valuable and deserve to be loved.",
             "Every day, in every way, I am getting better and stronger.",
@@ -274,12 +333,12 @@ struct InspirationView: View {
             "I have the freedom to choose at every moment, every day.",
             "I have the courage to change what I cannot accept, the serenity to accept what I cannot change, and the wisdom to know the difference."
         ]
-
+        
         // Add the daily affirmation at the beginning
         if !viewModel.dailyAffirmation.isEmpty {
             affirmations.insert(viewModel.dailyAffirmation, at: 0)
         }
-
+        
         // Shuffle the rest for variety
         let firstAffirmation = affirmations.first
         affirmations.removeFirst()
@@ -287,5 +346,14 @@ struct InspirationView: View {
         if let first = firstAffirmation {
             affirmations.insert(first, at: 0)
         }
+        
+        isLoading = false
     }
+}
+
+// Model for API response
+struct AffirmationResponse: Codable {
+    let id: String
+    let content: String
+    let createdAt: Date
 }

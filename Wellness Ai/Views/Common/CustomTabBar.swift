@@ -4,11 +4,11 @@ struct CustomTabBar: View {
     @Binding var selectedTab: Int
 
     let tabItems = [
-        TabItem(icon: "house.fill", name: "Ana Sayfa"),
-        TabItem(icon: "lungs.fill", name: "Meditasyon"),
-        TabItem(icon: "message.fill", name: "Sohbet"),
-        TabItem(icon: "lightbulb.fill", name: "İlham"),
-        TabItem(icon: "person.fill", name: "Profil")
+        TabItem(icon: "house.fill", name: "Home"),
+        TabItem(icon: "lungs.fill", name: "Meditation"),
+        TabItem(icon: "message.fill", name: "Chat"),
+        TabItem(icon: "lightbulb.fill", name: "Inspiration"),
+        TabItem(icon: "person.fill", name: "Profile")
     ]
 
     var body: some View {

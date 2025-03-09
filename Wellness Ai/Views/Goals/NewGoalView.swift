@@ -5,17 +5,17 @@ struct NewGoalView: View {
     @State private var title = ""
     @State private var selectedType: GoalType = .meditation
     @State private var hasTargetDate = false
-    @State private var targetDate = Date().addingTimeInterval(60*60*24*7) // Bir hafta sonrası
+    @State private var targetDate = Date().addingTimeInterval(60*60*24*7) // One week ahead
 
     let onAdd: (Goal) -> Void
 
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Hedef Detayları")) {
-                    TextField("Hedefin nedir?", text: $title)
+                Section(header: Text("Goal Details")) {
+                    TextField("What's your goal?", text: $title)
 
-                    Picker("Kategori", selection: $selectedType) {
+                    Picker("Category", selection: $selectedType) {
                         ForEach(GoalType.allCases) { type in
                             HStack {
                                 Image(systemName: type.icon)
@@ -27,20 +27,20 @@ struct NewGoalView: View {
                     }
                 }
 
-                Section(header: Text("Hedef Tarih")) {
-                    Toggle("Hedef Tarih Belirle", isOn: $hasTargetDate)
+                Section(header: Text("Target Date")) {
+                    Toggle("Set Target Date", isOn: $hasTargetDate)
 
                     if hasTargetDate {
-                        DatePicker("Tarih", selection: $targetDate, displayedComponents: .date)
+                        DatePicker("Date", selection: $targetDate, displayedComponents: .date)
                     }
                 }
             }
-            .navigationTitle("Yeni Hedef")
+            .navigationTitle("New Goal")
             .navigationBarItems(
-                leading: Button("İptal") {
+                leading: Button("Cancel") {
                     presentationMode.wrappedValue.dismiss()
                 },
-                trailing: Button("Ekle") {
+                trailing: Button("Add") {
                     let newGoal = Goal(
                         title: title,
                         type: selectedType,

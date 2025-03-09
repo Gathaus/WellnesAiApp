@@ -6,12 +6,12 @@ struct ChatView: View {
     @State private var scrollToBottom = false
     @FocusState private var isTextFieldFocused: Bool
 
-    // Sohbet önerileri
+    // Chat suggestions
     let chatSuggestions = [
-        "Bugün kendimi biraz stresli hissediyorum",
-        "Meditasyon için önerin var mı?",
-        "Olumlu düşünmek için tavsiye verir misin?",
-        "Daha iyi uyumak için ne yapabilirim?"
+        "I'm feeling a bit stressed today",
+        "Do you have any meditation recommendations?",
+        "Can you give me advice on positive thinking?",
+        "What can I do to sleep better?"
     ]
 
     var body: some View {
@@ -20,19 +20,19 @@ struct ChatView: View {
                 // Chat header
                 chatHeader
 
-                // Chat mesajları
+                // Chat messages
                 chatMessagesView
             }
 
-            // Mesaj gönderme alanı - bottom bar üzerinde ama tab bar'ın üstünde
+            // Message input area - above tab bar
             VStack(spacing: 0) {
-                // Sohbet önerileri
+                // Chat suggestions
                 chatSuggestionsView
 
                 // Input bar
                 messageInputBar
             }
-            .padding(.bottom, 80) // Tab bar için boşluk bırak
+            .padding(.bottom, 80) // Space for tab bar
         }
         .onTapGesture {
             isTextFieldFocused = false
@@ -47,30 +47,22 @@ struct ChatView: View {
     private var chatHeader: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Wellness Asistanı")
+                Text("Wellness Assistant")
                     .font(.system(size: 20, weight: .bold, design: .rounded))
 
-                Text("Her zaman yanında")
+                Text("Always by your side")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
-            // Updated friendly assistant avatar
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(
-                        gradient: Gradient(colors: [.blue.opacity(0.7), .purple.opacity(0.7)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .frame(width: 45, height: 45)
-
-                Image(systemName: "face.smiling.fill")
-                    .font(.system(size: 22))
-                    .foregroundColor(.white)
-            }
+            // Updated avatar to use the 512.png image
+            Image("512")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 45, height: 45)
+                .clipShape(Circle())
         }
         .padding()
         .background(Color.white)
@@ -139,9 +131,9 @@ struct ChatView: View {
 
     private var messageInputBar: some View {
         HStack(spacing: 15) {
-            // Metin alanı
+            // Text field
             ZStack(alignment: .trailing) {
-                TextField("Mesajınızı yazın...", text: $viewModel.currentInput)
+                TextField("Type your message...", text: $viewModel.currentInput)
                     .padding(.horizontal, 15)
                     .padding(.vertical, 12)
                     .background(Color(.systemGray6))
@@ -153,10 +145,10 @@ struct ChatView: View {
                         }
                     }
 
-                // Emojiler/GIF butonu
+                // Emoji/GIF button
                 if viewModel.currentInput.isEmpty {
                     Button(action: {
-                        // Emoji klavyesi
+                        // Emoji keyboard
                     }) {
                         Image(systemName: "face.smiling")
                             .font(.system(size: 16))
@@ -166,7 +158,7 @@ struct ChatView: View {
                 }
             }
 
-            // Gönder butonu
+            // Send button
             Button(action: {
                 if !viewModel.currentInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     viewModel.sendMessage(viewModel.currentInput)

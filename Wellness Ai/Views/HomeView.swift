@@ -9,28 +9,28 @@ struct HomeView: View {
     @Binding var selectedTab: Int
 
     let sampleNotifications = [
-        "Günün meditasyonunu yapmayı unutma!",
-        "Bugün için su içme hedefinin %50'sine ulaştın.",
-        "Yeni bir ilham sözü hazır, kontrol et!"
+        "Don't forget to do your daily meditation!",
+        "You've reached 50% of your water drinking goal for today.",
+        "A new inspiration quote is ready, check it out!"
     ]
 
     var body: some View {
         ZStack {
             ScrollView {
                 VStack(spacing: 25) {
-                    // Üst karşılama kartı
+                    // Top greeting card
                     greetingCard
 
-                    // Bugünkü ruh hali kartı
+                    // Today's mood card
                     moodSelectionCard
 
-                    // Günlük pozitif mesaj kartı
+                    // Daily positive message card
                     dailyAffirmationCard
 
-                    // Hızlı erişim kartları
+                    // Quick access cards
                     quickAccessCardsSection
 
-                    // Ruh hali geçmişi
+                    // Mood history
                     moodHistorySection
                 }
                 .padding(.horizontal)
@@ -71,7 +71,7 @@ struct HomeView: View {
     private var greetingCard: some View {
         HStack {
             HStack(spacing: 5) {
-                Text("Merhaba,")
+                Text("Hello,")
                     .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
 
@@ -98,7 +98,7 @@ struct HomeView: View {
 
     private var moodSelectionCard: some View {
         VStack(spacing: 15) {
-            Text("Bugün nasıl hissediyorsun?")
+            Text("How are you feeling today?")
                 .font(.system(size: 18, weight: .medium, design: .rounded))
                 .foregroundColor(.secondary)
 
@@ -171,7 +171,7 @@ struct HomeView: View {
     private var dailyAffirmationCard: some View {
         VStack(spacing: 20) {
             HStack {
-                Text("📝 Günün İlham Sözü")
+                Text("📝 Daily Inspiration")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
 
                 Spacer()
@@ -187,9 +187,9 @@ struct HomeView: View {
 
             // Copied message overlay
             ZStack {
-                // Sosyal paylaşım butonları
+                // Social sharing buttons
                 HStack(spacing: 15) {
-                    shareButtonView(text: "Kopyala", icon: "doc.on.doc.fill", color: .blue) {
+                    shareButtonView(text: "Copy", icon: "doc.on.doc.fill", color: .blue) {
                         UIPasteboard.general.string = viewModel.dailyAffirmation
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showCopiedMessage = true
@@ -202,15 +202,15 @@ struct HomeView: View {
                         }
                     }
 
-                    shareButtonView(text: "Paylaş", icon: "square.and.arrow.up.fill", color: .green) {
+                    shareButtonView(text: "Share", icon: "square.and.arrow.up.fill", color: .green) {
                         showShareSheet = true
                     }
                 }
                 .opacity(showCopiedMessage ? 0 : 1)
 
-                // "Kopyalandı" message
+                // "Copied" message
                 if showCopiedMessage {
-                    Text("Kopyalandı ✓")
+                    Text("Copied ✓")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
@@ -238,7 +238,7 @@ struct HomeView: View {
                     )
                 )
 
-            // Arka planda dekoratif elemanlar
+            // Decorative elements in background
             Circle()
                 .fill(Color.purple.opacity(0.1))
                 .frame(width: 100, height: 100)
@@ -283,8 +283,8 @@ struct HomeView: View {
         }) {
             QuickAccessCard(
                 icon: "message.fill",
-                title: "Sohbet",
-                description: "Asistanla konuş",
+                title: "Chat",
+                description: "Talk with your assistant",
                 color: .blue
             )
         }
@@ -296,8 +296,8 @@ struct HomeView: View {
         }) {
             QuickAccessCard(
                 icon: "lungs.fill",
-                title: "Meditasyon",
-                description: "İç huzur bul",
+                title: "Meditation",
+                description: "Find inner peace",
                 color: .purple
             )
         }
@@ -309,8 +309,8 @@ struct HomeView: View {
         }) {
             QuickAccessCard(
                 icon: "lightbulb.fill",
-                title: "İlham Sözleri",
-                description: "Günlük motivasyon",
+                title: "Inspiration",
+                description: "Daily motivation",
                 color: .orange
             )
         }
@@ -318,7 +318,7 @@ struct HomeView: View {
 
     private var moodHistorySection: some View {
         VStack(alignment: .leading, spacing: 15) {
-            Text("Son 7 Gün - Ruh Hali Takibi")
+            Text("Last 7 Days - Mood Tracking")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
 
             MoodHistoryChart(moodHistory: viewModel.moodHistory)
@@ -337,7 +337,7 @@ struct HomeView: View {
         VStack {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text("Bildirimler")
+                    Text("Notifications")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
 
                     Spacer()
@@ -358,7 +358,7 @@ struct HomeView: View {
 
                 if sampleNotifications.isEmpty {
                     VStack {
-                        Text("Bildirim yok")
+                        Text("No notifications")
                             .font(.system(size: 16))
                             .foregroundColor(.secondary)
                             .padding(.vertical, 30)
@@ -372,7 +372,7 @@ struct HomeView: View {
                                     Text(notification)
                                         .font(.system(size: 16))
 
-                                    Text("Az önce")
+                                    Text("Just now")
                                         .font(.system(size: 12))
                                         .foregroundColor(.secondary)
                                 }
