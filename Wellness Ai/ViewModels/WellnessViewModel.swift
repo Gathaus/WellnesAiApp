@@ -205,6 +205,13 @@ class WellnessViewModel: ObservableObject {
     func loadUserSettings() -> UserSettings {
         return storageService.loadSettings() ?? UserSettings()
     }
+    
+    // Add this method to WellnessViewModel class
+
+    func saveUser(_ user: User) {
+        self.user = user
+        storageService.saveUser(user)
+    }
 }
 
 // MARK: - Sample Data

@@ -30,7 +30,7 @@ struct MeditationDetailView: View {
         }
         .navigationBarHidden(true)
         .onAppear {
-            audioPlayer.loadAudio()
+            audioPlayer.loadAudio(for: meditation.type)
         }
         .onDisappear {
             audioPlayer.pause()
@@ -210,17 +210,6 @@ struct MeditationDetailView: View {
             }
 
             Spacer()
-
-            Button(action: {
-                // Favorilere ekle
-            }) {
-                Image(systemName: "heart")
-                    .font(.system(size: 22))
-                    .foregroundColor(.primary)
-                    .padding(10)
-                    .background(Color.white.opacity(0.9))
-                    .clipShape(Circle())
-            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 10)

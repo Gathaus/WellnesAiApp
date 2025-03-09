@@ -5,6 +5,12 @@ struct ProfileView: View {
     @AppStorage("isDarkMode") private var isDarkMode = false
     @Binding var showSubscribeSheet: Bool
     @State private var showFeedbackSheet = false
+    @State private var showEditProfileSheet = false
+    @State private var showHelpSheet = false
+    @State private var showPrivacySheet = false
+    @State private var showTermsSheet = false
+    @State private var showAboutSheet = false
+    @State private var editingName = ""
 
     var body: some View {
         ScrollView {
@@ -39,7 +45,10 @@ struct ProfileView: View {
 
                         // Düzenle butonu
                         Button(action: {
-                            // Profil düzenleme ekranı
+                            if let user = viewModel.user {
+                                editingName = user.name
+                            }
+                            showEditProfileSheet = true
                         }) {
                             Image(systemName: "pencil")
                                 .font(.system(size: 16))
@@ -132,18 +141,6 @@ struct ProfileView: View {
                         Divider()
                             .padding(.horizontal)
 
-                        // Veri paylaşımı
-                        Button(action: {
-                            // Veri seçenekleri
-                        }) {
-                            SettingRow(icon: "chart.bar.fill", title: "Veri Paylaşımı", iconColor: .purple)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .padding()
-
-                        Divider()
-                            .padding(.horizontal)
-
                         // Dil seçenekleri
                         Button(action: {
                             // Dil seçenekleri
@@ -160,7 +157,7 @@ struct ProfileView: View {
                     )
                 }
 
-                // Destek ve hakkında - with actual content
+                // Destek ve hakkında
                 VStack(spacing: 0) {
                     // Bölüm başlığı
                     Text("Destek & Hakkında")
@@ -173,7 +170,7 @@ struct ProfileView: View {
                     VStack(spacing: 0) {
                         // Yardım
                         Button(action: {
-                            // Yardım sayfası
+                            showHelpSheet = true
                         }) {
                             SettingRow(icon: "questionmark.circle.fill", title: "Yardım & Destek", iconColor: .blue)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -185,7 +182,7 @@ struct ProfileView: View {
 
                         // Gizlilik politikası
                         Button(action: {
-                            // Gizlilik politikası
+                            showPrivacySheet = true
                         }) {
                             SettingRow(icon: "hand.raised.fill", title: "Gizlilik Politikası", iconColor: .gray)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -197,7 +194,7 @@ struct ProfileView: View {
 
                         // Kullanım şartları
                         Button(action: {
-                            // Kullanım şartları
+                            showTermsSheet = true
                         }) {
                             SettingRow(icon: "doc.text.fill", title: "Kullanım Şartları", iconColor: .gray)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -209,7 +206,7 @@ struct ProfileView: View {
 
                         // Uygulama hakkında
                         Button(action: {
-                            // Uygulama hakkında
+                            showAboutSheet = true
                         }) {
                             SettingRow(icon: "info.circle.fill", title: "Uygulama Hakkında", iconColor: .blue)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -248,6 +245,28 @@ struct ProfileView: View {
         .sheet(isPresented: $showFeedbackSheet) {
             FeedbackView()
         }
+        .sheet(isPresented: $showEditProfileSheet) {
+            EditProfileView(name: $editingName, onSave: { newName in
+                if !newName.isEmpty, let user = viewModel.user {
+                    var updatedUser = user
+                    updatedUser.name = newName
+                    viewModel.user = updatedUser
+                    viewModel.saveUser(updatedUser)
+                }
+            })
+        }
+        .sheet(isPresented: $showHelpSheet) {
+            HelpSheetView()
+        }
+        .sheet(isPresented: $showPrivacySheet) {
+            PrivacyPolicyView()
+        }
+        .sheet(isPresented: $showTermsSheet) {
+            TermsOfServiceView()
+        }
+        .sheet(isPresented: $showAboutSheet) {
+            AboutAppView()
+        }
     }
 
     private func formatDate(_ date: Date) -> String {
@@ -258,6 +277,39 @@ struct ProfileView: View {
     }
 }
 
+// Edit Profile View
+struct EditProfileView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var name: String
+    let onSave: (String) -> Void
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Profil Bilgileri")) {
+                    TextField("İsim", text: $name)
+                        .font(.system(size: 17))
+                        .padding(.vertical, 8)
+                }
+
+                // Additional fields could be added here in the future
+            }
+            .navigationBarTitle("Profili Düzenle", displayMode: .inline)
+            .navigationBarItems(
+                leading: Button("İptal") {
+                    presentationMode.wrappedValue.dismiss()
+                },
+                trailing: Button("Kaydet") {
+                    onSave(name)
+                    presentationMode.wrappedValue.dismiss()
+                }
+                .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            )
+        }
+    }
+}
+
+// Help Sheet View
 struct HelpSheetView: View {
     @Environment(\.presentationMode) var presentationMode
 
@@ -338,7 +390,304 @@ struct HelpSheetView: View {
     }
 }
 
-// New Feedback View
+// Privacy Policy View
+struct PrivacyPolicyView: View {
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Group {
+                        Text("Gizlilik Politikası")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .padding(.bottom, 10)
+
+                        Text("Son Güncelleme: 1 Mart 2025")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .padding(.bottom, 20)
+
+                        Text("Bu gizlilik politikası, WellnessAI uygulamasını kullanırken toplanan, kullanılan ve paylaşılan bilgileri açıklar. Uygulamayı kullanarak, bu politikada belirtilen veri toplama ve kullanım uygulamalarını kabul etmiş olursunuz.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Toplanan Bilgiler")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Uygulama, size daha iyi bir deneyim sunmak için aşağıdaki bilgileri toplayabilir:\n\n• Profil bilgileri (isim, tercihler)\n• Uygulama kullanım verileri\n• Ruh hali ve hedef takip verileri\n• Cihaz bilgileri")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Verilerin Kullanımı")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Toplanan veriler şu amaçlarla kullanılabilir:\n\n• Uygulamanın özelliklerini sağlamak ve iyileştirmek\n• Kişiselleştirilmiş içerik ve öneriler sunmak\n• Uygulama performansını analiz etmek\n• Teknik sorunları çözmek")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Veri Güvenliği")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Verilerinizin güvenliği bizim için önemlidir. Uygun güvenlik önlemleri kullanarak verilerinizi korumak için çaba gösteriyoruz.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Üçüncü Taraflarla Paylaşım")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Kişisel verilerinizi, yasal yükümlülüklerimizi yerine getirmek veya haklarımızı korumak için gereken durumlar dışında üçüncü taraflarla paylaşmıyoruz.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Değişiklikler")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler yapıldığında, uygulama içinde bildirim alacaksınız.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("İletişim")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Gizlilik politikamızla ilgili sorularınız varsa, lütfen privacy@wellnessai.com adresine e-posta gönderin.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding()
+            }
+            .navigationBarTitle("Gizlilik Politikası", displayMode: .inline)
+            .navigationBarItems(trailing: Button("Kapat") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+}
+
+// Terms of Service View
+struct TermsOfServiceView: View {
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Group {
+                        Text("Kullanım Şartları")
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .padding(.bottom, 10)
+
+                        Text("Son Güncelleme: 1 Mart 2025")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .padding(.bottom, 20)
+
+                        Text("Bu kullanım şartları, WellnessAI uygulamasını kullanırken uymanız gereken kuralları ve hükümleri belirtir. Uygulamayı kullanarak, bu şartları kabul etmiş olursunuz.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Kullanım Lisansı")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("WellnessAI, size kişisel ve ticari olmayan kullanım için sınırlı, münhasır olmayan, devredilemez bir lisans verir. Bu lisans, uygulamayı kopyalamak, değiştirmek veya yeniden dağıtmak için izin vermez.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Kullanıcı Davranışları")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Uygulamayı kullanırken, yasalara uygun hareket etmeyi ve başkalarının haklarına saygı göstermeyi kabul edersiniz. Uygulamayı kötüye kullanmak, güvenliğini tehlikeye atmak veya diğer kullanıcıları rahatsız etmek yasaktır.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Hizmet Değişiklikleri")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("WellnessAI, herhangi bir zamanda ve herhangi bir nedenle uygulamayı değiştirme, askıya alma veya sonlandırma hakkını saklı tutar.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Sorumluluk Sınırlaması")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("WellnessAI, uygulama kullanımından kaynaklanan doğrudan, dolaylı, özel, arızi veya cezai zararlardan sorumlu değildir.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Yönetim Hukuku")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Bu şartlar, Türkiye Cumhuriyeti yasalarına tabidir ve bu yasalara göre yorumlanacaktır.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Değişiklikler")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Bu kullanım şartlarını zaman zaman güncelleyebiliriz. Önemli değişiklikler yapıldığında, uygulama içinde bildirim alacaksınız.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("İletişim")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Kullanım şartlarımızla ilgili sorularınız varsa, lütfen terms@wellnessai.com adresine e-posta gönderin.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding()
+            }
+            .navigationBarTitle("Kullanım Şartları", displayMode: .inline)
+            .navigationBarItems(trailing: Button("Kapat") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+}
+
+// About App View
+struct AboutAppView: View {
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Group {
+                        // App logo
+                        HStack {
+                            Spacer()
+
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Color.blue, Color.purple]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 100, height: 100)
+
+                                Text("W")
+                                    .font(.system(size: 50, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.vertical, 20)
+
+                        Text("WellnessAI")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .frame(maxWidth: .infinity, alignment: .center)
+
+                        Text("Sürüm 1.0.0 (Build 1)")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.bottom, 30)
+                    }
+
+                    Group {
+                        Text("Uygulama Hakkında")
+                            .font(.system(size: 18, weight: .bold))
+
+                        Text("WellnessAI, zihinsel ve duygusal sağlığınızı desteklemek için tasarlanmış kişisel bir asistanıdır. Yapay zeka destekli özellikler ve bilimsel yaklaşımlarla, kullanıcıların daha sağlıklı ve dengeli bir yaşam sürmelerine yardımcı olmayı amaçlıyoruz.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Özellikler")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("• Günlük ruh hali takibi ve analizi\n• Kişiselleştirilmiş meditasyon önerileri\n• Yapay zeka destekli sohbet asistanı\n• İlham verici günlük olumlamalar\n• Kişisel hedef belirleme ve takip")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("Ekibimiz")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("WellnessAI, psikoloji, teknoloji ve iyi yaşam konularında tutkulu bir ekip tarafından geliştirilmiştir. Amacımız, herkesin zihinsel sağlığına önem vermesine ve kişisel gelişim yolculuğunda destek sağlamaktır.")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("İletişim")
+                            .font(.system(size: 18, weight: .bold))
+                            .padding(.top, 10)
+
+                        Text("Web: www.wellnessai.com\nE-posta: info@wellnessai.com\nSosyal Medya: @wellnessai")
+                            .font(.system(size: 16))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Group {
+                        Text("© 2025 Wellness AI. Tüm hakları saklıdır.")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 30)
+                    }
+                }
+                .padding()
+            }
+            .navigationBarTitle("Uygulama Hakkında", displayMode: .inline)
+            .navigationBarItems(trailing: Button("Kapat") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+}
+
+// Feedback View
 struct FeedbackView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var feedbackText = ""

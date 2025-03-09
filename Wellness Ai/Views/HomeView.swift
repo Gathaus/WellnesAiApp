@@ -5,6 +5,7 @@ struct HomeView: View {
     @State private var currentMood: MoodType = .neutral
     @State private var showCopiedMessage = false
     @State private var showNotifications = false
+    @State private var showShareSheet = false
     @Binding var selectedTab: Int
 
     let sampleNotifications = [
@@ -60,6 +61,9 @@ struct HomeView: View {
             if showNotifications {
                 notificationsOverlay
             }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: [viewModel.dailyAffirmation])
         }
     }
 
@@ -199,7 +203,7 @@ struct HomeView: View {
                     }
 
                     shareButtonView(text: "Paylaş", icon: "square.and.arrow.up.fill", color: .green) {
-                        // Paylaşım işlemleri buraya
+                        showShareSheet = true
                     }
                 }
                 .opacity(showCopiedMessage ? 0 : 1)
@@ -402,6 +406,7 @@ struct HomeView: View {
         )
     }
 }
+
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
