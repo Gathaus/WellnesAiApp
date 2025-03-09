@@ -11,13 +11,13 @@ struct MeditationDetailView: View {
             meditation.type.color.opacity(0.1)
                 .ignoresSafeArea()
 
-            // İçerik
+            // Content
             ScrollView {
                 VStack(spacing: 25) {
-                    // Başlık
+                    // Title
                     headerSection
 
-                    // Açıklama
+                    // Description
                     descriptionSection
 
                     // Oynatma kontrolleri
@@ -25,7 +25,7 @@ struct MeditationDetailView: View {
                 }
             }
 
-            // Üst navigasyon çubuğu
+            // Top navigation bar
             navigationBar
         }
         .navigationBarHidden(true)
@@ -37,11 +37,11 @@ struct MeditationDetailView: View {
         }
     }
 
-    // MARK: - UI Bileşenleri
+    // MARK: - UI Components
 
     private var headerSection: some View {
         VStack(spacing: 15) {
-            // Görsel
+            // Visual
             ZStack {
                 Circle()
                     .fill(
@@ -66,12 +66,12 @@ struct MeditationDetailView: View {
                     )
             }
 
-            // Başlık
+            // Title
             Text(meditation.title)
                 .font(.system(size: 26, weight: .bold, design: .rounded))
                 .multilineTextAlignment(.center)
 
-            // Süre
+            // Duration
             Text("\(meditation.duration) dakika • \(meditation.type.rawValue)")
                 .font(.system(size: 16))
                 .foregroundColor(.secondary)
@@ -95,7 +95,7 @@ struct MeditationDetailView: View {
 
     private var playbackControls: some View {
         VStack(spacing: 20) {
-            // İlerleme göstergesi
+            // Progress indicator
             VStack(spacing: 8) {
                 // Slider
                 Slider(value: Binding(
@@ -106,7 +106,7 @@ struct MeditationDetailView: View {
                 ), in: 0...1, step: 0.01)
                 .accentColor(meditation.type.color)
 
-                // Zaman göstergesi
+                // Time indicator
                 HStack {
                     Text(formatTime(audioPlayer.currentTime))
                         .font(.system(size: 14, design: .monospaced))
@@ -229,7 +229,7 @@ struct MeditationDetailView_Previews: PreviewProvider {
         MeditationDetailView(
             meditation: Meditation(
                 title: "Derin Odak",
-                description: "Çalışma öncesi konsantrasyonu artıran meditasyon",
+                description: "Pre-work meditation to enhance concentration",
                 duration: 10,
                 type: .focus,
                 imageName: "lightbulb.fill"

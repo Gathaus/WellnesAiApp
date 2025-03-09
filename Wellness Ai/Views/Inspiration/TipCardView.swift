@@ -49,7 +49,7 @@ struct TipCardView: View {
                     Button(action: {
                         // Share
                     }) {
-                        Label("Paylaş", systemImage: "square.and.arrow.up")
+                        Label("Share", systemImage: "square.and.arrow.up")
                             .font(.system(size: 12))
                             .foregroundColor(.secondary)
                     }
@@ -84,7 +84,7 @@ struct TipCardView_Previews: PreviewProvider {
     static var previews: some View {
         TipCardView(
             tip: WellnessTip(
-                content: "Her gün bir hedefe odaklanın. Küçük adımlar büyük sonuçlara götürür.",
+                content: "Focus on one goal each day. Small steps lead to big results.",
                 category: .motivation
             )
         )

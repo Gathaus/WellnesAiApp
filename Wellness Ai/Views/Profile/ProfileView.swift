@@ -318,10 +318,10 @@ struct HelpSheetView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Group {
-                        Text("Nasıl Kullanılır?")
+                        Text("How to Use?")
                             .font(.system(size: 22, weight: .bold, design: .rounded))
 
-                        Text("WellnessAI, zihinsel ve duygusal sağlığınızı desteklemek için tasarlanmış kişisel asistanınızdır. Uygulama ile günlük ruh halinizi takip edebilir, meditasyon yapabilir, ilham verici sözler okuyabilir ve yapay zeka asistanı ile sohbet edebilirsiniz.")
+                        Text("WellnessAI is your personal assistant designed to support your mental and emotional health. With the app, you can track daily mood, meditate, read inspirational quotes, and chat with AI assistant.")
                             .font(.system(size: 16))
                             .foregroundColor(.secondary)
                     }
@@ -492,7 +492,7 @@ struct TermsOfServiceView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     Group {
-                        Text("Kullanım Şartları")
+                        Text("Terms of Service")
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .padding(.bottom, 10)
 
@@ -623,7 +623,7 @@ struct AboutAppView: View {
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .frame(maxWidth: .infinity, alignment: .center)
 
-                        Text("Sürüm 1.0.0 (Build 1)")
+                        Text("Version 1.0.0 (Build 1)")
                             .font(.system(size: 16))
                             .foregroundColor(.secondary)
                             .frame(maxWidth: .infinity, alignment: .center)
@@ -631,7 +631,7 @@ struct AboutAppView: View {
                     }
 
                     Group {
-                        Text("Uygulama Hakkında")
+                        Text("About the App")
                             .font(.system(size: 18, weight: .bold))
 
                         Text("WellnessAI, zihinsel ve duygusal sağlığınızı desteklemek için tasarlanmış kişisel bir asistanıdır. Yapay zeka destekli özellikler ve bilimsel yaklaşımlarla, kullanıcıların daha sağlıklı ve dengeli bir yaşam sürmelerine yardımcı olmayı amaçlıyoruz.")

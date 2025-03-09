@@ -30,7 +30,7 @@ struct SettingRow_Previews: PreviewProvider {
     static var previews: some View {
         SettingRow(
             icon: "bell.fill",
-            title: "Günlük Hatırlatıcılar",
+            title: "Daily Reminders",
             iconColor: .orange
         )
         .previewLayout(.sizeThatFits)

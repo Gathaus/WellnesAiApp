@@ -11,7 +11,7 @@ struct MeditationCard: View {
                     .fill(cardGradient)
                     .shadow(color: meditation.type.color.opacity(0.3), radius: 10, x: 0, y: 5)
 
-                // İçerik
+                // Content
                 cardContent
             }
         }
@@ -27,7 +27,7 @@ struct MeditationCard: View {
 
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Üst kısım - ikon ve süre
+            // Top section - icon and duration
             HStack {
                 Image(systemName: meditation.imageName)
                     .font(.system(size: 20))
@@ -51,7 +51,7 @@ struct MeditationCard: View {
 
             Spacer()
 
-            // Alt kısım - başlık ve açıklama
+            // Bottom section - title and description
             VStack(alignment: .leading, spacing: 5) {
                 Text(meditation.title)
                     .font(.system(size: 22, weight: .bold, design: .rounded))
@@ -73,7 +73,7 @@ struct MeditationCard_Previews: PreviewProvider {
         MeditationCard(
             meditation: Meditation(
                 title: "Sabah Odaklanma",
-                description: "Güne enerjik başlamak için kısa bir meditasyon",
+                description: "Short meditation to start the day energized",
                 duration: 5,
                 type: .focus,
                 imageName: "sunrise.fill"

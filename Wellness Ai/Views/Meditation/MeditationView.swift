@@ -32,14 +32,14 @@ struct MeditationView: View {
         .navigationBarHidden(true)
     }
 
-    // MARK: - UI Bileşenleri
+    // MARK: - UI Components
 
     private var headerView: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text("Meditasyon")
                 .font(.system(size: 28, weight: .bold, design: .rounded))
 
-            Text("İç huzuru keşfet")
+            Text("Discover Inner Peace")
                 .font(.system(size: 16))
                 .foregroundColor(.secondary)
         }
@@ -50,7 +50,7 @@ struct MeditationView: View {
 
     private var featuredMeditationsSection: some View {
         VStack(alignment: .leading) {
-            Text("Önerilen Meditasyonlar")
+            Text("Recommended Meditations")
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .padding(.horizontal)
                 .padding(.top, 20)
@@ -69,7 +69,7 @@ struct MeditationView: View {
 
     private var allMeditationsSection: some View {
         VStack(alignment: .leading) {
-            Text("Tüm Meditasyonlar")
+            Text("All Meditations")
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .padding(.horizontal)
                 .padding(.top, 20)

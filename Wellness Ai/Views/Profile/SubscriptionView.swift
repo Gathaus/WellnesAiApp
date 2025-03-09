@@ -11,10 +11,10 @@ struct SubscriptionView: View {
                 VStack(spacing: 25) {
                     // Üst başlık
                     VStack(spacing: 10) {
-                        Text("Premium'a Yükselt")
+                        Text("Upgrade to Premium")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
 
-                        Text("Tüm premium özelliklere sınırsız erişim")
+                        Text("Unlimited access to all premium features")
                             .font(.system(size: 16))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -38,7 +38,7 @@ struct SubscriptionView: View {
                             PremiumFeature(
                                 icon: "chart.bar.fill",
                                 title: "Detaylı İstatistikler",
-                                description: "Günlük, haftalık ve aylık ilerleme grafikleri"
+                                description: "Daily, weekly and monthly progress charts"
                             )
 
                             PremiumFeature(
@@ -50,7 +50,7 @@ struct SubscriptionView: View {
                             PremiumFeature(
                                 icon: "icloud.fill",
                                 title: "Sınırsız Bulut Yedekleme",
-                                description: "Tüm verilerinizi güvenle saklayın"
+                                description: "Securely store all your data"
                             )
                         }
                     }
@@ -63,7 +63,7 @@ struct SubscriptionView: View {
 
                     // Abonelik planları
                     VStack(spacing: 15) {
-                        Text("Abonelik Planı Seçin")
+                        Text("Choose Subscription Plan")
                             .font(.system(size: 18, weight: .bold, design: .rounded))
                             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -113,7 +113,7 @@ struct SubscriptionView: View {
                         viewModel.updatePremiumStatus(true)
                         presentationMode.wrappedValue.dismiss()
                     }) {
-                        Text("Şimdi Abone Ol")
+                        Text("Subscribe Now")
                             .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)

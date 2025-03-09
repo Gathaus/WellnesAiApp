@@ -13,7 +13,7 @@ class MeditationAudioPlayer: ObservableObject {
     
     // Embedded sample sounds for meditation
     private let sampleSounds = [
-        "meditation_calm": "Sakinleştirici meditasyon sesi",
+        "meditation_calm": "Calming meditation sound",
         "meditation_focus": "Odaklanma meditasyon sesi",
         "meditation_sleep": "Uyku meditasyon sesi",
         "meditation_anxiety": "Kaygı azaltma meditasyon sesi"
@@ -37,7 +37,7 @@ class MeditationAudioPlayer: ObservableObject {
     }
 
     func loadAudio(for meditationType: MeditationType? = nil) {
-        // Meditasyon tipine uygun ses dosyasını seç
+        // Select appropriate sound file for meditation type
         let soundName: String
         if let type = meditationType {
             switch type {

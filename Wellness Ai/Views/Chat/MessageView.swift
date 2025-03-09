@@ -103,7 +103,7 @@ struct MessageView: View {
         static var previews: some View {
             VStack(spacing: 20) {
                 MessageView(message: Message(content: "Merhaba, nasılsın?", isFromUser: true))
-                MessageView(message: Message(content: "Ben iyiyim, teşekkürler! Senin için ne yapabilirim?", isFromUser: false))
+                MessageView(message: Message(content: "I'm fine, thank you! How can I help you today?", isFromUser: false))
             }
             .padding()
             .previewLayout(.sizeThatFits)

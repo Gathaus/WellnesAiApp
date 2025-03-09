@@ -13,20 +13,20 @@ struct OnboardingView: View {
     // Onboarding sayfaları
     let pages = [
         OnboardingPage(
-            title: "WellnessAI'ya Hoş Geldiniz",
-            description: "Zihinsel ve duygusal sağlığınızı desteklemek için kişiselleştirilmiş asistanınız",
+            title: "Welcome to WellnessAI",
+            description: "Your personalized assistant to support mental and emotional health",
             imageName: "brain.head.profile",
             backgroundColor: Color(hex: "5E72EB")
         ),
         OnboardingPage(
-            title: "Kişisel Asistanınız",
-            description: "WellnessAI, meditasyon, olumlu düşünce ve günlük motivasyon ile iyi oluşunuzu destekler",
+            title: "Your Personal Assistant",
+            description: "WellnessAI supports your well-being with meditation, positive thinking and daily motivation",
             imageName: "person.fill.checkmark",
             backgroundColor: Color(hex: "FF9190")
         ),
         OnboardingPage(
-            title: "Zihinsel Huzura Ulaşın",
-            description: "Günlük stres ve zorluklarla başa çıkmanıza yardımcı olmak için özelleştirilmiş öneriler",
+            title: "Achieve Mental Peace",
+            description: "Customized recommendations to help you handle daily stress and challenges",
             imageName: "cloud.sun.fill",
             backgroundColor: Color(hex: "43B692")
         )
@@ -34,22 +34,22 @@ struct OnboardingView: View {
 
     // Wellness hedefleri
     let wellnessGoals = [
-        "Stresimi azaltmak",
-        "Daha iyi uyumak",
-        "Farkındalığımı artırmak",
-        "Olumlu düşünmek",
-        "Motivasyonumu yükseltmek",
-        "Odaklanmak",
-        "Kaygımı azaltmak"
+        "Reduce stress",
+        "Improve sleep",
+        "Increase mindfulness",
+        "Positive thinking",
+        "Boost motivation",
+        "Improve focus",
+        "Reduce anxiety"
     ]
 
     // Zorluklar
     let challenges = [
-        "Stres",
-        "Uyku sorunları",
-        "Düşük motivasyon",
-        "Kaygı",
-        "Konsantrasyon zorluğu",
+        "Stress",
+        "Sleep issues",
+        "Low motivation",
+        "Anxiety",
+        "Concentration difficulties",
         "Olumsuz düşünceler",
         "İş/yaşam dengesi",
         "Enerji eksikliği"
