@@ -9,6 +9,7 @@ struct InspirationView: View {
     @State private var showShareOptions = false
     @State private var hasSwipedOnce = false
     @State private var showShareSheet = false
+    @State private var showFavoritesSheet = false
 
     // Different gradient configurations for variety
     let gradients: [LinearGradient] = [
@@ -88,7 +89,7 @@ struct InspirationView: View {
 
                 // Instructions (only shown before first swipe)
                 if !hasSwipedOnce {
-                    Text("Yukarı kaydır 👆 yeni ilham sözü için")
+                    Text("Swipe up 👆 for new inspiration")
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.white)
                         .padding(.vertical, 5)
@@ -110,6 +111,10 @@ struct InspirationView: View {
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: [currentAffirmation])
+        }
+        .sheet(isPresented: $showFavoritesSheet) {
+            FavoritedInspirationsView()
+                .environmentObject(viewModel)
         }
     }
 
@@ -136,22 +141,35 @@ struct InspirationView: View {
     }
 
     private var headerView: some View {
-        VStack(spacing: 8) {
-            Text("Günlük İlham")
-                .font(.system(size: 30, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Daily Inspiration")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
 
-            Text("Pozitif düşünce, pozitif yaşam")
-                .font(.system(size: 16))
-                .foregroundColor(.white.opacity(0.8))
+                Text("Positive thinking, positive life")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                showFavoritesSheet = true
+            }) {
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 22))
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(Color.white.opacity(0.2))
+                    .clipShape(Circle())
+            }
         }
         .padding(.top, 30)
     }
 
     private var affirmationView: some View {
         VStack(spacing: 30) {
-
-
             // Affirmation text
             Text(currentAffirmation)
                 .font(.system(size: 26, weight: .medium, design: .serif))
@@ -180,9 +198,14 @@ struct InspirationView: View {
             })
 
             // Favorite button
-            actionButton(icon: "heart", action: {
-                // Add to favorites (could be implemented later)
-            })
+            let isFavorited = viewModel.isInspirationFavorited(currentAffirmation)
+            actionButton(
+                icon: isFavorited ? "heart.fill" : "heart",
+                action: {
+                    viewModel.toggleFavoriteInspiration(currentAffirmation)
+                },
+                color: isFavorited ? .red : .white
+            )
 
             // Refresh button
             actionButton(icon: "arrow.clockwise", action: {
@@ -194,11 +217,11 @@ struct InspirationView: View {
         }
     }
 
-    private func actionButton(icon: String, action: @escaping () -> Void) -> some View {
+    private func actionButton(icon: String, action: @escaping () -> Void, color: Color = .white) -> some View {
         Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundColor(.white)
+                .foregroundColor(color)
                 .frame(width: 50, height: 50)
                 .background(Color.white.opacity(0.2))
                 .clipShape(Circle())
@@ -209,7 +232,7 @@ struct InspirationView: View {
     // MARK: - Helper Methods
 
     private var currentAffirmation: String {
-        guard !affirmations.isEmpty else { return "Bugün harika bir gün olacak!" }
+        guard !affirmations.isEmpty else { return "Today will be a great day!" }
         return affirmations[currentAffirmationIndex % affirmations.count]
     }
 
@@ -229,27 +252,27 @@ struct InspirationView: View {
     private func loadAffirmations() {
         // Load all available affirmations
         affirmations = [
-            "Ben değerliyim ve sevilmeyi hak ediyorum.",
-            "Her gün, her şekilde daha iyi ve daha güçlü oluyorum.",
-            "Zorlukları aşabilecek güce sahibim.",
-            "Hayatımı olumlu bir şekilde değiştirebilirim.",
-            "Ben yeterince iyiyim ve olduğum gibi kendimi kabul ediyorum.",
-            "Bugün ve her gün için minnettar hissediyorum.",
-            "Kendi mutluluğumu yaratma gücüne sahibim.",
-            "Pozitif enerji yayıyor ve pozitif enerji çekiyorum.",
-            "Ben barış ve huzur içindeyim.",
-            "Her geçen gün kendimi daha çok seviyorum.",
-            "Ben kendi hayatımın mimarıyım ve olumlu seçimler yapıyorum.",
-            "Şu anda tamamen buradayım ve anın tadını çıkarıyorum.",
-            "Benim değerim, başarılarımla değil, kim olduğumla belirlenir.",
-            "Ben kendime şefkat ve anlayışla yaklaşıyorum.",
-            "Her zorluk beni güçlendirir ve büyütür.",
-            "Her nefesle daha da sakinleşiyor ve dengeleniyorum.",
-            "Bedenime saygı duyuyor ve iyi bakıyorum.",
-            "Kendi ihtiyaçlarımı karşılamak bencillik değil, öz bakımdır.",
-            "Hayatım güzellikler ve fırsatlarla dolu.",
-            "Ben her gün, her an seçim yapabilme özgürlüğüne sahibim.",
-            "Kabul edemeyeceğim şeyleri değiştirme cesaretine, değiştiremeyeceğim şeyleri kabul etme huzuruna ve ikisini birbirinden ayırt etme bilgeliğine sahibim."
+            "I am valuable and deserve to be loved.",
+            "Every day, in every way, I am getting better and stronger.",
+            "I have the power to overcome challenges.",
+            "I can change my life in a positive way.",
+            "I am good enough and I accept myself as I am.",
+            "I feel grateful for today and every day.",
+            "I have the power to create my own happiness.",
+            "I radiate positive energy and attract positive energy.",
+            "I am at peace.",
+            "I love myself more each day.",
+            "I am the architect of my life and make positive choices.",
+            "I am fully present here and now, enjoying the moment.",
+            "My worth is determined by who I am, not by my achievements.",
+            "I approach myself with compassion and understanding.",
+            "Every challenge strengthens and grows me.",
+            "With each breath, I become calmer and more balanced.",
+            "I respect my body and take good care of it.",
+            "Meeting my own needs is not selfish, it's self-care.",
+            "My life is full of beauty and opportunities.",
+            "I have the freedom to choose at every moment, every day.",
+            "I have the courage to change what I cannot accept, the serenity to accept what I cannot change, and the wisdom to know the difference."
         ]
 
         // Add the daily affirmation at the beginning
@@ -264,12 +287,5 @@ struct InspirationView: View {
         if let first = firstAffirmation {
             affirmations.insert(first, at: 0)
         }
-    }
-}
-
-struct InspirationView_Previews: PreviewProvider {
-    static var previews: some View {
-        InspirationView()
-            .environmentObject(WellnessViewModel())
     }
 }

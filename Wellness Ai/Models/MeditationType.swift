@@ -2,10 +2,10 @@ import Foundation
 import SwiftUI
 
 enum MeditationType: String, CaseIterable, Codable {
-    case focus = "Odaklanma"
-    case sleep = "Uyku"
-    case anxiety = "Kaygı"
-    case calm = "Sakinlik"
+    case focus = "Focus"
+    case sleep = "Sleep"
+    case anxiety = "Anxiety"
+    case calm = "Calm"
 
     var icon: String {
         switch self {

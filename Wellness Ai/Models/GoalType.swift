@@ -2,11 +2,11 @@ import Foundation
 import SwiftUI
 
 enum GoalType: String, CaseIterable, Codable, Identifiable {
-    case meditation = "Meditasyon"
-    case exercise = "Egzersiz"
-    case water = "Su İçme"
-    case journal = "Günlük"
-    case mindfulness = "Farkındalık"
+    case meditation = "Meditation"
+    case exercise = "Exercise"
+    case water = "Water Intake"
+    case journal = "Journaling"
+    case mindfulness = "Mindfulness"
 
     var id: String { rawValue }
 
