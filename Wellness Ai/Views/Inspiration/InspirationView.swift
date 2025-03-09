@@ -7,6 +7,8 @@ struct InspirationView: View {
     @State private var dragOffset: CGFloat = 0
     @State private var opacity: Double = 1.0
     @State private var showShareOptions = false
+    @State private var hasSwipedOnce = false
+    @State private var showShareSheet = false
 
     // Different gradient configurations for variety
     let gradients: [LinearGradient] = [
@@ -54,8 +56,8 @@ struct InspirationView: View {
 
                 Spacer()
 
-                // Main affirmation card
-                affirmationCardView
+                // Main affirmation view (no card)
+                affirmationView
                     .offset(y: dragOffset)
                     .opacity(opacity)
                     .gesture(
@@ -72,6 +74,7 @@ struct InspirationView: View {
                                     // Threshold to show next affirmation
                                     withAnimation(.spring()) {
                                         showNextAffirmation()
+                                        hasSwipedOnce = true
                                     }
                                 }
                                 withAnimation(.spring()) {
@@ -83,30 +86,30 @@ struct InspirationView: View {
 
                 Spacer()
 
-                // Instructions
-                Text("Yukarı kaydır 👆 yeni ilham sözü için")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundColor(.white)
-                    .padding(.vertical, 5)
-                    .padding(.horizontal, 15)
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(20)
-                    .padding(.bottom, 30)
+                // Instructions (only shown before first swipe)
+                if !hasSwipedOnce {
+                    Text("Yukarı kaydır 👆 yeni ilham sözü için")
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 5)
+                        .padding(.horizontal, 15)
+                        .background(Color.white.opacity(0.2))
+                        .cornerRadius(20)
+                        .padding(.bottom, 30)
+                }
 
                 // Action buttons
                 actionButtonsView
                     .padding(.bottom, 80) // Extra padding for tab bar
             }
             .padding()
-
-            // Share sheet
-            if showShareOptions {
-                shareOptionsView
-            }
         }
         .onAppear {
             // Initialize affirmations
             loadAffirmations()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: [currentAffirmation])
         }
     }
 
@@ -145,12 +148,9 @@ struct InspirationView: View {
         .padding(.top, 30)
     }
 
-    private var affirmationCardView: some View {
+    private var affirmationView: some View {
         VStack(spacing: 30) {
-            // Decorative icon
-            Image(systemName: "quote.bubble.fill")
-                .font(.system(size: 40))
-                .foregroundColor(.white.opacity(0.7))
+
 
             // Affirmation text
             Text(currentAffirmation)
@@ -170,23 +170,13 @@ struct InspirationView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
         .padding(.horizontal, 25)
-        .background(
-            RoundedRectangle(cornerRadius: 25)
-                .fill(Color.white.opacity(0.15))
-                .shadow(color: Color.black.opacity(0.1), radius: 15, x: 0, y: 10)
-                .blur(radius: 0.5)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 25)
-                .stroke(Color.white.opacity(0.3), lineWidth: 1)
-        )
     }
 
     private var actionButtonsView: some View {
         HStack(spacing: 25) {
             // Share button
             actionButton(icon: "square.and.arrow.up", action: {
-                showShareOptions = true
+                showShareSheet = true
             })
 
             // Favorite button
@@ -198,6 +188,7 @@ struct InspirationView: View {
             actionButton(icon: "arrow.clockwise", action: {
                 withAnimation(.spring()) {
                     showNextAffirmation()
+                    hasSwipedOnce = true
                 }
             })
         }
@@ -212,84 +203,6 @@ struct InspirationView: View {
                 .background(Color.white.opacity(0.2))
                 .clipShape(Circle())
                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 3)
-        }
-    }
-
-    private var shareOptionsView: some View {
-        ZStack {
-            // Dimmed background
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    withAnimation {
-                        showShareOptions = false
-                    }
-                }
-
-            // Share options panel
-            VStack(spacing: 20) {
-                Text("Paylaş")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-
-                Divider()
-
-                // Share options
-                HStack(spacing: 30) {
-                    shareOption(title: "Kopyala", icon: "doc.on.doc.fill") {
-                        UIPasteboard.general.string = currentAffirmation
-                        withAnimation {
-                            showShareOptions = false
-                        }
-                    }
-
-                    shareOption(title: "Mesaj", icon: "message.fill") {
-                        // Share via message - this would normally integrate with UIActivityViewController
-                        withAnimation {
-                            showShareOptions = false
-                        }
-                    }
-
-                    shareOption(title: "Sosyal", icon: "person.2.fill") {
-                        // Share to social media - this would normally integrate with UIActivityViewController
-                        withAnimation {
-                            showShareOptions = false
-                        }
-                    }
-                }
-
-                Button("İptal") {
-                    withAnimation {
-                        showShareOptions = false
-                    }
-                }
-                .font(.system(size: 16, weight: .medium, design: .rounded))
-                .foregroundColor(.primary)
-                .padding(.vertical, 10)
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color("CardBackground"))
-            )
-            .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 10)
-            .padding(.horizontal, 40)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .animation(.spring(), value: showShareOptions)
-        }
-    }
-
-    private func shareOption(title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 24))
-                    .foregroundColor(.accentColor)
-
-                Text(title)
-                    .font(.system(size: 14))
-                    .foregroundColor(.primary)
-            }
-            .frame(width: 70)
         }
     }
 
